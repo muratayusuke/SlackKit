@@ -29,12 +29,36 @@ extension Client {
     }
     
     public func getImIDForUserWithID(id: String, completion: (imID: String?) -> Void) {
-        let ims = Client.sharedInstance.channels.filter{$0.1.isIM == true}
+        let ims = channels.filter{$0.1.isIM == true}
         let channel = ims.filter{$0.1.user == id}.first
         if let channel = channel {
             completion(imID: channel.0)
         } else {
             api.imOpen(id, completion: completion)
+        }
+    }
+    
+    public func getChannelHistory(channelID: String, completion: (messages: [Message]) -> Void) {
+        api.fetchChannelHistory(channelID) { (response) -> Void in
+            print(response)
+            if let messages = response["messages"] as? [[String: AnyObject]] {
+                let messageObjects: [Message] = messages.map({ (m) -> Message in
+                    return Message.init(message: m)!
+                })
+                completion(messages: messageObjects)
+            }
+        }
+    }
+    
+    public func getIMHistory(channelID: String, completion: (messages: [Message]) -> Void) {
+        api.fetchIMHistory(channelID) { (response) -> Void in
+            print(response)
+            if let messages = response["messages"] as? [[String: AnyObject]] {
+                let messageObjects: [Message] = messages.map({ (m) -> Message in
+                    return Message.init(message: m)!
+                })
+                completion(messages: messageObjects)
+            }
         }
     }
     

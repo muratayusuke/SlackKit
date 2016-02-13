@@ -144,4 +144,23 @@ public struct NetworkInterface {
                 }
             }) { (SlackError) -> Void in }
     }
+    
+    public func fetchChannelHistory(channelID: String, completion: (response: [String: AnyObject]) -> Void) {
+        request(
+            SlackAPIEndpoint.ChannelsHistory,
+            parameters: ["channel": channelID],
+            successClosure: { (response) -> Void in
+                completion(response: response)
+            }) { (SlackError) -> Void in }
+    }
+    
+    public func fetchIMHistory(channelID: String, completion: (response: [String: AnyObject]) -> Void) {
+        print(channelID)
+        request(
+            SlackAPIEndpoint.IMHistory,
+            parameters: ["channel": channelID],
+            successClosure: { (response) -> Void in
+                completion(response: response)
+            }) { (SlackError) -> Void in }
+    }
 }
