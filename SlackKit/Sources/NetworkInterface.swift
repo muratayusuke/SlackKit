@@ -24,10 +24,10 @@
 import Foundation
 
 internal struct NetworkInterface {
-    
+
     private let apiUrl = "https://slack.com/api/"
-    
-    internal func request(endpoint: SlackAPIEndpoint, token: String, parameters: [String: AnyObject]?, successClosure: ([String: AnyObject])->Void, errorClosure: (SlackError)->Void) {
+
+    internal func request(endpoint: SlackAPIEndpoint, token: String, parameters: [String: AnyObject]?, successClosure: ([String: AnyObject]) -> Void, errorClosure: (SlackError) -> Void) {
         var requestString = "\(apiUrl)\(endpoint.rawValue)?token=\(token)"
         if let params = parameters {
             requestString += requestStringFromParameters(params)
@@ -46,8 +46,8 @@ internal struct NetworkInterface {
             })
         }.resume()
     }
-    
-    internal func uploadRequest(token: String, data: NSData, parameters: [String: AnyObject]?, successClosure: ([String: AnyObject])->Void, errorClosure: (SlackError)->Void) {
+
+    internal func uploadRequest(token: String, data: NSData, parameters: [String: AnyObject]?, successClosure: ([String: AnyObject]) -> Void, errorClosure: (SlackError) -> Void) {
         var requestString = "\(apiUrl)\(SlackAPIEndpoint.FilesUpload.rawValue)?token=\(token)"
         if let params = parameters {
             requestString = requestString + requestStringFromParameters(params)
@@ -65,14 +65,14 @@ internal struct NetworkInterface {
         let contentDispositionString = "Content-Disposition: form-data; name=\"file\"; filename=\"\(parameters!["filename"])\"\r\n"
         let contentTypeString = "Content-Type: \(parameters!["filetype"])\r\n\r\n"
 
-        let requestBodyData : NSMutableData = NSMutableData()
+        let requestBodyData: NSMutableData = NSMutableData()
         requestBodyData.appendData(boundaryStart.dataUsingEncoding(NSUTF8StringEncoding)!)
         requestBodyData.appendData(contentDispositionString.dataUsingEncoding(NSUTF8StringEncoding)!)
         requestBodyData.appendData(contentTypeString.dataUsingEncoding(NSUTF8StringEncoding)!)
         requestBodyData.appendData(data)
         requestBodyData.appendData("\r\n".dataUsingEncoding(NSUTF8StringEncoding)!)
         requestBodyData.appendData(boundaryEnd.dataUsingEncoding(NSUTF8StringEncoding)!)
-        
+
         request.setValue(contentType, forHTTPHeaderField: "Content-Type")
         request.HTTPBody = requestBodyData
 
@@ -121,22 +121,42 @@ internal struct NetworkInterface {
             }
         }
     }
-    
+
     private func randomBoundary() -> String {
         return String(format: "slackkit.boundary.%08x%08x", arc4random(), arc4random())
     }
-    
-    private func requestStringFromParameters(parameters: [String: AnyObject]) -> String {
-        var requestString = ""
-        for key in parameters.keys {
-            if let value = parameters[key] as? String, encodedValue = value.stringByAddingPercentEncodingWithAllowedCharacters(NSCharacterSet.URLHostAllowedCharacterSet()) {
-                requestString += "&\(key)=\(encodedValue)"
-            } else if let value = parameters[key] as? Int {
-                requestString += "&\(key)=\(value)"
+
+}
+
+//MARK: - Utils
+public func requestStringFromParameters(parameters: [String: AnyObject]) -> String {
+    var requestString = ""
+    for key in parameters.keys {
+        if let value = parameters[key] as? String, encodedValue = value.stringByAddingPercentEncodingWithAllowedCharacters(NSCharacterSet.URLHostAllowedCharacterSet()) {
+            requestString += "&\(key)=\(encodedValue)"
+        } else if let value = parameters[key] as? Int {
+            requestString += "&\(key)=\(value)"
+        }
+    }
+
+    return requestString
+}
+
+public func encodeAttachments(attachments: [Attachment?]?) -> NSString? {
+    if let attachments = attachments {
+        var attachmentArray: [[String: AnyObject]] = []
+        for attachment in attachments {
+            if let attachment = attachment {
+                attachmentArray.append(attachment.dictionary())
             }
         }
-        
-        return requestString
+        do {
+            let data = try NSJSONSerialization.dataWithJSONObject(attachmentArray, options: NSJSONWritingOptions.PrettyPrinted)
+            let string = NSString(data: data, encoding: NSUTF8StringEncoding)
+            return string
+        } catch _ {
+
+        }
     }
-    
+    return nil
 }

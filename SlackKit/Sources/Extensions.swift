@@ -28,11 +28,11 @@ public extension NSDate {
     func slackTimestamp() -> Double {
         return NSNumber(double: timeIntervalSince1970).doubleValue
     }
-    
+
 }
 
-internal extension String {
-    
+public extension String {
+
     func slackFormatEscaping() -> String {
         var escapedString = stringByReplacingOccurrencesOfString("&", withString: "&amp;")
         escapedString = stringByReplacingOccurrencesOfString("<", withString: "&lt;")
