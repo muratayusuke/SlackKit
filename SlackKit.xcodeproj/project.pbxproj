@@ -34,7 +34,6 @@
 		263993A71CE90EE0004A6E93 /* Client+EventHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A85FF81CE3BCEF00756C40 /* Client+EventHandling.swift */; };
 		263993A81CE90EE0004A6E93 /* NetworkInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 260EC2311C4DC61D0093B253 /* NetworkInterface.swift */; };
 		263993A91CE90EE0004A6E93 /* EventDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26BBA18B1C398E3C00BF7225 /* EventDelegate.swift */; };
-		263993AB1CE90EE0004A6E93 /* Starscream.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4307A07F1CC6D0910011D5DE /* Starscream.framework */; };
 		263993AD1CE90EE0004A6E93 /* SlackKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 2661A6A41BBF62FF0026F67B /* SlackKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		263993B61CE90EED004A6E93 /* Client+Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = C16C98791CE7D3DD00692776 /* Client+Utilities.swift */; };
 		263993B71CE90EED004A6E93 /* Channel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26BBA1881C398E3C00BF7225 /* Channel.swift */; };
@@ -71,6 +70,7 @@
 		26DF40351C7A0FA300E19241 /* Attachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26DF40341C7A0FA300E19241 /* Attachment.swift */; };
 		26F4BAC31C9DEBD1000910BA /* Leaderboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26F4BAC21C9DEBD1000910BA /* Leaderboard.swift */; };
 		4307A0801CC6D0910011D5DE /* Starscream.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4307A07F1CC6D0910011D5DE /* Starscream.framework */; };
+		480F3F271D0276EA0080AB24 /* Starscream.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 480F3F241D0270460080AB24 /* Starscream.framework */; };
 		C16C987A1CE7D3DD00692776 /* Client+Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = C16C98791CE7D3DD00692776 /* Client+Utilities.swift */; };
 		C1A85FF91CE3BCEF00756C40 /* Client+EventDispatching.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A85FF71CE3BCEF00756C40 /* Client+EventDispatching.swift */; };
 		C1A85FFA1CE3BCEF00756C40 /* Client+EventHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A85FF81CE3BCEF00756C40 /* Client+EventHandling.swift */; };
@@ -107,6 +107,7 @@
 		26DF40341C7A0FA300E19241 /* Attachment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Attachment.swift; path = Sources/Attachment.swift; sourceTree = "<group>"; };
 		26F4BAC21C9DEBD1000910BA /* Leaderboard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Leaderboard.swift; sourceTree = "<group>"; };
 		4307A07F1CC6D0910011D5DE /* Starscream.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Starscream.framework; path = Carthage/Build/Mac/Starscream.framework; sourceTree = "<group>"; };
+		480F3F241D0270460080AB24 /* Starscream.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Starscream.framework; path = Carthage/Build/iOS/Starscream.framework; sourceTree = "<group>"; };
 		C16C98791CE7D3DD00692776 /* Client+Utilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Client+Utilities.swift"; path = "Sources/Client+Utilities.swift"; sourceTree = "<group>"; };
 		C1A85FF71CE3BCEF00756C40 /* Client+EventDispatching.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Client+EventDispatching.swift"; path = "Sources/Client+EventDispatching.swift"; sourceTree = "<group>"; };
 		C1A85FF81CE3BCEF00756C40 /* Client+EventHandling.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Client+EventHandling.swift"; path = "Sources/Client+EventHandling.swift"; sourceTree = "<group>"; };
@@ -132,7 +133,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				263993AB1CE90EE0004A6E93 /* Starscream.framework in Frameworks */,
+				480F3F271D0276EA0080AB24 /* Starscream.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -221,6 +222,7 @@
 		CA70A3A1A9A1A259960DFBCF /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				480F3F241D0270460080AB24 /* Starscream.framework */,
 				4307A07F1CC6D0910011D5DE /* Starscream.framework */,
 			);
 			name = Frameworks;
@@ -678,7 +680,7 @@
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = "$(SRCROOT)/SlackKit/Supporting Files/Info-iOS.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_BUNDLE_IDENTIFIER = com.launchsoft.SlackKit;
@@ -706,7 +708,7 @@
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = "$(SRCROOT)/SlackKit/Supporting Files/Info-iOS.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_BUNDLE_IDENTIFIER = com.launchsoft.SlackKit;
