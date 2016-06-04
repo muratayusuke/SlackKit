@@ -24,19 +24,25 @@
 import Foundation
 
 internal struct NetworkInterface {
-    
+
     private let apiUrl = "https://slack.com/api/"
-    
-    internal func request(endpoint: SlackAPIEndpoint, token: String, parameters: [String: AnyObject]?, successClosure: ([String: AnyObject])->Void, errorClosure: (SlackError)->Void) {
+
+    internal func requestFromEndpoint(endpoint: SlackAPIEndpoint, token: String, parameters: [String: AnyObject]?) -> NSURLRequest? {
         var requestString = "\(apiUrl)\(endpoint.rawValue)?token=\(token)"
         if let params = parameters {
             requestString += requestStringFromParameters(params)
         }
         guard let url =  NSURL(string: requestString) else {
+            return nil
+        }
+        return NSURLRequest(URL:url)
+    }
+
+    internal func fireRequest(request: NSURLRequest?, successClosure: ([String: AnyObject]) -> Void, errorClosure: (SlackError) -> Void) {
+        guard let request = request else {
             errorClosure(SlackError.ClientNetworkError)
             return
         }
-        let request = NSURLRequest(URL:url)
         NSURLSession.sharedSession().dataTaskWithRequest(request) {
             (data, response, internalError) -> Void in
             self.handleResponse(data, response: response, internalError: internalError, successClosure: {(json) in
@@ -46,8 +52,8 @@ internal struct NetworkInterface {
             })
         }.resume()
     }
-    
-    internal func uploadRequest(token: String, data: NSData, parameters: [String: AnyObject]?, successClosure: ([String: AnyObject])->Void, errorClosure: (SlackError)->Void) {
+
+    internal func uploadRequest(token: String, data: NSData, parameters: [String: AnyObject]?, successClosure: ([String: AnyObject]) -> Void, errorClosure: (SlackError) -> Void) {
         var requestString = "\(apiUrl)\(SlackAPIEndpoint.FilesUpload.rawValue)?token=\(token)"
         if let params = parameters {
             requestString = requestString + requestStringFromParameters(params)
@@ -65,14 +71,14 @@ internal struct NetworkInterface {
         let contentDispositionString = "Content-Disposition: form-data; name=\"file\"; filename=\"\(parameters!["filename"])\"\r\n"
         let contentTypeString = "Content-Type: \(parameters!["filetype"])\r\n\r\n"
 
-        let requestBodyData : NSMutableData = NSMutableData()
+        let requestBodyData: NSMutableData = NSMutableData()
         requestBodyData.appendData(boundaryStart.dataUsingEncoding(NSUTF8StringEncoding)!)
         requestBodyData.appendData(contentDispositionString.dataUsingEncoding(NSUTF8StringEncoding)!)
         requestBodyData.appendData(contentTypeString.dataUsingEncoding(NSUTF8StringEncoding)!)
         requestBodyData.appendData(data)
         requestBodyData.appendData("\r\n".dataUsingEncoding(NSUTF8StringEncoding)!)
         requestBodyData.appendData(boundaryEnd.dataUsingEncoding(NSUTF8StringEncoding)!)
-        
+
         request.setValue(contentType, forHTTPHeaderField: "Content-Type")
         request.HTTPBody = requestBodyData
 
@@ -85,8 +91,8 @@ internal struct NetworkInterface {
             })
         }.resume()
     }
-    
-    private func handleResponse(data: NSData?, response:NSURLResponse?, internalError:NSError?, successClosure: ([String: AnyObject])->Void, errorClosure: (SlackError)->Void) {
+
+    private func handleResponse(data: NSData?, response: NSURLResponse?, internalError: NSError?, successClosure: ([String: AnyObject]) -> Void, errorClosure: (SlackError) -> Void) {
         guard let data = data, response = response as? NSHTTPURLResponse else {
             errorClosure(SlackError.ClientNetworkError)
             return
@@ -96,7 +102,7 @@ internal struct NetworkInterface {
                 errorClosure(SlackError.ClientJSONError)
                 return
             }
-            
+
             switch response.statusCode {
             case 200:
                 if (json["ok"] as! Bool == true) {
@@ -121,11 +127,11 @@ internal struct NetworkInterface {
             }
         }
     }
-    
+
     private func randomBoundary() -> String {
         return String(format: "slackkit.boundary.%08x%08x", arc4random(), arc4random())
     }
-    
+
     private func requestStringFromParameters(parameters: [String: AnyObject]) -> String {
         var requestString = ""
         for key in parameters.keys {
@@ -135,8 +141,8 @@ internal struct NetworkInterface {
                 requestString += "&\(key)=\(value)"
             }
         }
-        
+
         return requestString
     }
-    
+
 }
