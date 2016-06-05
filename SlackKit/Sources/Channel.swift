@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-public struct Channel {
+public class Channel {
 
     public weak var client: Client?
     public let id: String?
@@ -78,8 +78,8 @@ public struct Channel {
             latest = Message(ts: channel?["latest"] as? String)
         }
     }
-    
-    internal init(client: Client, channel: [String: AnyObject]?) {
+
+    internal convenience init(client: Client, channel: [String: AnyObject]?) {
         self.init(channel: channel)
         self.client = client
     }
