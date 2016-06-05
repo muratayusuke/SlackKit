@@ -71,6 +71,11 @@
 		26F4BAC31C9DEBD1000910BA /* Leaderboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26F4BAC21C9DEBD1000910BA /* Leaderboard.swift */; };
 		4307A0801CC6D0910011D5DE /* Starscream.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4307A07F1CC6D0910011D5DE /* Starscream.framework */; };
 		480F3F271D0276EA0080AB24 /* Starscream.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 480F3F241D0270460080AB24 /* Starscream.framework */; };
+		483A857D1D03D2A300EB6AB2 /* SlackWebAPI+Rx.swift in Sources */ = {isa = PBXBuildFile; fileRef = 483A857C1D03D2A300EB6AB2 /* SlackWebAPI+Rx.swift */; };
+		483A857E1D03D2A300EB6AB2 /* SlackWebAPI+Rx.swift in Sources */ = {isa = PBXBuildFile; fileRef = 483A857C1D03D2A300EB6AB2 /* SlackWebAPI+Rx.swift */; };
+		483A857F1D03D2A300EB6AB2 /* SlackWebAPI+Rx.swift in Sources */ = {isa = PBXBuildFile; fileRef = 483A857C1D03D2A300EB6AB2 /* SlackWebAPI+Rx.swift */; };
+		483A85831D03F44600EB6AB2 /* RxCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 483A85811D03F44600EB6AB2 /* RxCocoa.framework */; };
+		483A85841D03F44600EB6AB2 /* RxSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 483A85821D03F44600EB6AB2 /* RxSwift.framework */; };
 		C16C987A1CE7D3DD00692776 /* Client+Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = C16C98791CE7D3DD00692776 /* Client+Utilities.swift */; };
 		C1A85FF91CE3BCEF00756C40 /* Client+EventDispatching.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A85FF71CE3BCEF00756C40 /* Client+EventDispatching.swift */; };
 		C1A85FFA1CE3BCEF00756C40 /* Client+EventHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A85FF81CE3BCEF00756C40 /* Client+EventHandling.swift */; };
@@ -108,6 +113,9 @@
 		26F4BAC21C9DEBD1000910BA /* Leaderboard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Leaderboard.swift; sourceTree = "<group>"; };
 		4307A07F1CC6D0910011D5DE /* Starscream.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Starscream.framework; path = Carthage/Build/Mac/Starscream.framework; sourceTree = "<group>"; };
 		480F3F241D0270460080AB24 /* Starscream.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Starscream.framework; path = Carthage/Build/iOS/Starscream.framework; sourceTree = "<group>"; };
+		483A857C1D03D2A300EB6AB2 /* SlackWebAPI+Rx.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "SlackWebAPI+Rx.swift"; path = "Sources/SlackWebAPI+Rx.swift"; sourceTree = "<group>"; };
+		483A85811D03F44600EB6AB2 /* RxCocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RxCocoa.framework; path = Carthage/Build/iOS/RxCocoa.framework; sourceTree = "<group>"; };
+		483A85821D03F44600EB6AB2 /* RxSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RxSwift.framework; path = Carthage/Build/iOS/RxSwift.framework; sourceTree = "<group>"; };
 		C16C98791CE7D3DD00692776 /* Client+Utilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Client+Utilities.swift"; path = "Sources/Client+Utilities.swift"; sourceTree = "<group>"; };
 		C1A85FF71CE3BCEF00756C40 /* Client+EventDispatching.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Client+EventDispatching.swift"; path = "Sources/Client+EventDispatching.swift"; sourceTree = "<group>"; };
 		C1A85FF81CE3BCEF00756C40 /* Client+EventHandling.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Client+EventHandling.swift"; path = "Sources/Client+EventHandling.swift"; sourceTree = "<group>"; };
@@ -133,6 +141,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				483A85831D03F44600EB6AB2 /* RxCocoa.framework in Frameworks */,
+				483A85841D03F44600EB6AB2 /* RxSwift.framework in Frameworks */,
 				480F3F271D0276EA0080AB24 /* Starscream.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -198,6 +208,7 @@
 				26BBA18F1C398E3C00BF7225 /* Message.swift */,
 				260EC2311C4DC61D0093B253 /* NetworkInterface.swift */,
 				260EC2321C4DC61D0093B253 /* SlackWebAPI.swift */,
+				483A857C1D03D2A300EB6AB2 /* SlackWebAPI+Rx.swift */,
 				2601D61A1C7646B80012BF22 /* SlackWebAPIErrorDispatcher.swift */,
 				26BBA1901C398E3C00BF7225 /* Team.swift */,
 				26BBA1911C398E3C00BF7225 /* Types.swift */,
@@ -222,6 +233,8 @@
 		CA70A3A1A9A1A259960DFBCF /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				483A85811D03F44600EB6AB2 /* RxCocoa.framework */,
+				483A85821D03F44600EB6AB2 /* RxSwift.framework */,
 				480F3F241D0270460080AB24 /* Starscream.framework */,
 				4307A07F1CC6D0910011D5DE /* Starscream.framework */,
 			);
@@ -433,6 +446,7 @@
 				2601D61B1C7646B80012BF22 /* SlackWebAPIErrorDispatcher.swift in Sources */,
 				C1A85FFA1CE3BCEF00756C40 /* Client+EventHandling.swift in Sources */,
 				260EC2341C4DC61D0093B253 /* NetworkInterface.swift in Sources */,
+				483A857D1D03D2A300EB6AB2 /* SlackWebAPI+Rx.swift in Sources */,
 				26BBA1981C398E3C00BF7225 /* EventDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -459,6 +473,7 @@
 				263993A61CE90EE0004A6E93 /* SlackWebAPIErrorDispatcher.swift in Sources */,
 				263993A71CE90EE0004A6E93 /* Client+EventHandling.swift in Sources */,
 				263993A81CE90EE0004A6E93 /* NetworkInterface.swift in Sources */,
+				483A857E1D03D2A300EB6AB2 /* SlackWebAPI+Rx.swift in Sources */,
 				263993A91CE90EE0004A6E93 /* EventDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -485,6 +500,7 @@
 				263993C51CE90EED004A6E93 /* SlackWebAPIErrorDispatcher.swift in Sources */,
 				263993C61CE90EED004A6E93 /* Client+EventHandling.swift in Sources */,
 				263993C71CE90EED004A6E93 /* NetworkInterface.swift in Sources */,
+				483A857F1D03D2A300EB6AB2 /* SlackWebAPI+Rx.swift in Sources */,
 				263993C81CE90EED004A6E93 /* EventDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
