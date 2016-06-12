@@ -2,14 +2,17 @@ source 'https://github.com/CocoaPods/Specs.git'
 
 use_frameworks!
 
-target 'SlackKit' do
-	pod 'Starscream'
+target 'SlackKit OS X' do
+  pod 'Starscream'
+  pod 'RxSwift'
 end
 
-target 'SlackKit_iOS' do
-	pod 'Starscream'
+target 'SlackKit iOS' do
+  pod 'Starscream'
+  pod 'RxSwift'
 end
 
-target 'SlackKit_tvOS' do
-	pod 'Starscream'
+target 'SlackKit tvOS' do
+  pod 'Starscream'
+  pod 'RxSwift'
 end
