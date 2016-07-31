@@ -25,4 +25,17 @@ extension Channel {
         }
     }
 
+    public func rx_mark(timestamp: String = "\(NSDate().timeIntervalSince1970)") -> Observable<AnyObject> {
+        guard let id = id, client = client else { return Observable.never() }
+        if isMPIM == true {
+            return client.webAPI.rx_markMPIM(id, timestamp: timestamp)
+        } else if isIM == true {
+            return client.webAPI.rx_markIM(id, timestamp: timestamp)
+        } else if isGroup == true {
+            return client.webAPI.rx_markGroup(id, timestamp: timestamp)
+        } else {
+            return client.webAPI.rx_markChannel(id, timestamp: timestamp)
+        }
+    }
+
 }

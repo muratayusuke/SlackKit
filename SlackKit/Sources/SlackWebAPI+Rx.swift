@@ -23,6 +23,13 @@ extension SlackWebAPI {
             }
     }
 
+    public func rx_markChannel(id: String, timestamp: String = "\(NSDate().timeIntervalSince1970)") -> Observable<AnyObject> {
+        guard let request = markChannelRequest(id, timestamp: timestamp) else {
+            return Observable.empty()
+        }
+        return NSURLSession.sharedSession().rx_JSON(request)
+    }
+
     //MARK: - Messaging
     public func rx_sendMessage(channel: String, text: String, username: String? = nil, asUser: Bool? = nil, parse: ParseMode? = nil, linkNames: Bool? = nil, attachments: [Attachment?]? = nil, unfurlLinks: Bool? = nil, unfurlMedia: Bool? = nil, iconURL: String? = nil, iconEmoji: String? = nil) -> Observable<AnyObject> {
         guard let request = sendMessageRequest(channel, text: text, username: username, asUser: asUser, parse: parse, linkNames: linkNames, attachments: attachments, unfurlLinks: unfurlLinks, unfurlMedia: unfurlMedia, iconURL: iconURL, iconEmoji: iconEmoji) else {
@@ -42,6 +49,13 @@ extension SlackWebAPI {
             }
     }
 
+    public func rx_markGroup(id: String, timestamp: String = "\(NSDate().timeIntervalSince1970)") -> Observable<AnyObject> {
+        guard let request = markGroupRequest(id, timestamp: timestamp) else {
+            return Observable.empty()
+        }
+        return NSURLSession.sharedSession().rx_JSON(request)
+    }
+
     //MARK: - IM
     public func rx_imHistory(id: String, latest: String = "\(NSDate().timeIntervalSince1970)", oldest: String = "0", inclusive: Bool = false, count: Int = 100, unreads: Bool = false) -> Observable<History> {
         guard let request = imHistoryRequest(id, latest: latest, oldest: oldest, inclusive: inclusive, count: count, unreads: unreads) else {
@@ -53,6 +67,13 @@ extension SlackWebAPI {
             }
     }
 
+    public func rx_markIM(id: String, timestamp: String = "\(NSDate().timeIntervalSince1970)") -> Observable<AnyObject> {
+        guard let request = markIMRequest(id, timestamp: timestamp) else {
+            return Observable.empty()
+        }
+        return NSURLSession.sharedSession().rx_JSON(request)
+    }
+
     //MARK: - MPIM
     public func rx_mpimHistory(id: String, latest: String = "\(NSDate().timeIntervalSince1970)", oldest: String = "0", inclusive: Bool = false, count: Int = 100, unreads: Bool = false) -> Observable<History> {
         guard let request = mpimHistoryRequest(id, latest: latest, oldest: oldest, inclusive: inclusive, count: count, unreads: unreads) else {
@@ -62,6 +83,13 @@ extension SlackWebAPI {
             .map { response in
                 return History(history: response as? [String: AnyObject])
             }
+    }
+
+    public func rx_markMPIM(id: String, timestamp: String = "\(NSDate().timeIntervalSince1970)") -> Observable<AnyObject> {
+        guard let request = markMPIMRequest(id, timestamp: timestamp) else {
+            return Observable.empty()
+        }
+        return NSURLSession.sharedSession().rx_JSON(request)
     }
 
 }
