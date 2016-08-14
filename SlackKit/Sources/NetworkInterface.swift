@@ -98,13 +98,12 @@ internal struct NetworkInterface {
             return
         }
         do {
-            guard let json = try NSJSONSerialization.JSONObjectWithData(data, options: []) as? [String: AnyObject] else {
-                errorClosure(SlackError.ClientJSONError)
-                return
-            }
-
             switch response.statusCode {
             case 200:
+                guard let json = try NSJSONSerialization.JSONObjectWithData(data, options: []) as? [String: AnyObject] else {
+                    errorClosure(SlackError.ClientJSONError)
+                    return
+                }
                 if (json["ok"] as! Bool == true) {
                     successClosure(json)
                 } else {
