@@ -40,9 +40,9 @@ public class Channel {
     internal(set) public var purpose: Topic?
     internal(set) public var isMember: Bool?
     internal(set) public var lastRead: String?
-    internal(set) public var latest: Message?
+    public var latest: Message?
     internal(set) public var unread: Int?
-    internal(set) public var unreadCountDisplay: Int?
+    public var unreadCountDisplay: Int?
     internal(set) public var hasPins: Bool?
     internal(set) public var members: [String]?
     // Client use
