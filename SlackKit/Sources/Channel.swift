@@ -40,7 +40,7 @@ public struct Channel {
     internal(set) public var purpose: Topic?
     internal(set) public var isMember: Bool?
     public var lastRead: String?
-    internal(set) public var latest: Message?
+    public var latest: Message?
     public var unread: Int?
     public var unreadCountDisplay: Int?
     internal(set) public var hasPins: Bool?
