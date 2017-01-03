@@ -15,4 +15,6 @@ Pod::Spec.new do |s|
   s.frameworks = 'Foundation'
   s.dependency 'Starscream'
   s.dependency 'Swifter'
+  s.dependency 'RxCocoa'
+  s.dependency 'RxSwift'
 end
