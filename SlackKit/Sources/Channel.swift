@@ -79,7 +79,7 @@ public struct Channel {
         }
     }
     
-    internal init(client: Client, channel: [String: AnyObject]?) {
+    internal init(client: Client, channel: [String: Any]?) {
         self.init(channel: channel)
         self.client = client
     }

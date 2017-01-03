@@ -189,7 +189,7 @@ public final class Client: WebSocketDelegate {
     }
     
     fileprivate func addChannel(_ aChannel: [String: Any]) {
-        let channel = Channel(channel: aChannel)
+        let channel = Channel(client: self, channel: aChannel)
         if let id = channel.id {
             channels[id] = channel
         }
