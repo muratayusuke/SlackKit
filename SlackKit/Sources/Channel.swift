@@ -24,6 +24,7 @@
 public struct Channel {
     
     public let id: String?
+    public weak var client: Client?
     public let created: Int?
     public let creator: String?
     internal(set) public var name: String?
@@ -76,6 +77,11 @@ public struct Channel {
         } else {
             latest = Message(ts: channel?["latest"] as? String)
         }
+    }
+    
+    internal init(client: Client, channel: [String: AnyObject]?) {
+        self.init(channel: channel)
+        self.client = client
     }
     
     internal init(id:String?) {
