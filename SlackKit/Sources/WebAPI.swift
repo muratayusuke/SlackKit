@@ -117,29 +117,14 @@ public final class WebAPI {
     }
     
     //MARK: - RTM
-    public func rtmStart(_ simpleLatest: Bool? = nil, noUnreads: Bool? = nil, mpimAware: Bool? = nil, success: ((_ response: [String: Any])->Void)?, failure: FailureClosure?) {
+    public func rtmStartRequest(simpleLatest: Bool? = nil, noUnreads: Bool? = nil, mpimAware: Bool? = nil) -> URLRequest? {
         let parameters: [String: Any?] = ["simple_latest": simpleLatest, "no_unreads": noUnreads, "mpim_aware": mpimAware]
-        networkInterface.request(.rtmStart, token: token, parameters: WebAPI.filterNilParameters(parameters), successClosure: {
-                (response) -> Void in
-                success?(response)
-            }) {(error) -> Void in
-                failure?(error)
-            }
+        return networkInterface.request(endpoint: .rtmStart, token: token, parameters: WebAPI.filterNilParameters(parameters))
     }
     
-    //MARK: - Auth
-    public func authenticationTest(_ success: ((_ authenticated: Bool)->Void)?, failure: FailureClosure?) {
-        networkInterface.request(.authTest, token: token, parameters: nil, successClosure: {
-            (response) -> Void in
-                success?(true)
-            }) {(error) -> Void in
-                failure?(error)
-        }
-    }
-    
-    public static func oauthAccess(_ clientID: String, clientSecret: String, code: String, redirectURI: String? = nil, success: ((_ response: [String: Any])->Void)?, failure: ((SlackError)->Void)?) {
-        let parameters: [String: Any?] = ["client_id": clientID, "client_secret": clientSecret, "code": code, "redirect_uri": redirectURI]
-        NetworkInterface().request(.oauthAccess, parameters: filterNilParameters(parameters), successClosure: {
+    public func rtmStart(simpleLatest: Bool? = nil, noUnreads: Bool? = nil, mpimAware: Bool? = nil, success: ((_ response: [String: Any]) -> Void)?, failure: FailureClosure?) {
+        let request = rtmStartRequest(simpleLatest: simpleLatest, noUnreads: noUnreads, mpimAware: mpimAware)
+        networkInterface.fire(request: request, successClosure: {
             (response) -> Void in
             success?(response)
         }) {(error) -> Void in
@@ -147,9 +132,44 @@ public final class WebAPI {
         }
     }
     
-    public static func oauthRevoke(_ token: String, test: Bool? = nil, success: ((_ revoked:Bool)->Void)?, failure: ((SlackError)->Void)?) {
+    //MARK: - Auth
+    public func authenticationTestRequest() -> URLRequest? {
+        return networkInterface.request(endpoint: .authTest, token: token, parameters: nil)
+    }
+    
+    public func authenticationTest(success: ((_ authenticated: Bool) -> Void)?, failure: FailureClosure?) {
+        let request = authenticationTestRequest()
+        networkInterface.fire(request: request, successClosure: {
+            (response) -> Void in
+            success?(true)
+        }) {(error) -> Void in
+            failure?(error)
+        }
+    }
+    
+    public static func oauthAccessRequest(clientID: String, clientSecret: String, code: String, redirectURI: String? = nil) -> URLRequest? {
+        let parameters: [String: Any?] = ["client_id": clientID, "client_secret": clientSecret, "code": code, "redirect_uri": redirectURI]
+        return NetworkInterface().request(endpoint: .oauthAccess, parameters: WebAPI.filterNilParameters(parameters))
+    }
+    
+    public static func oauthAccess(clientID: String, clientSecret: String, code: String, redirectURI: String? = nil, success: ((_ response: [String: Any])->Void)?, failure: ((SlackError)->Void)?) {
+        let request = oauthAccessRequest(clientID: clientID, clientSecret: clientSecret, code: code, redirectURI: redirectURI)
+        NetworkInterface().fire(request: request, successClosure: {
+            (response) -> Void in
+            success?(response)
+        }) {(error) -> Void in
+            failure?(error)
+        }
+    }
+    
+    public static func oauthRevokeRequest(token: String, test: Bool? = nil) -> URLRequest? {
         let parameters: [String: Any?] = ["token": token, "test": test]
-        NetworkInterface().request(.authRevoke, parameters: filterNilParameters(parameters), successClosure: {
+        return NetworkInterface().request(endpoint: .authRevoke, parameters: WebAPI.filterNilParameters(parameters))
+    }
+    
+    public static func oauthRevoke(token: String, test: Bool? = nil, success: ((_ revoked:Bool)->Void)?, failure: ((SlackError)->Void)?) {
+        let request = oauthRevokeRequest(token: token, test: test)
+        NetworkInterface().fire(request: request, successClosure: {
             (response) -> Void in
             success?(true)
         }) {(error) -> Void in
@@ -158,160 +178,203 @@ public final class WebAPI {
     }
     
     //MARK: - Channels
-    public func channelHistory(_ id: String, latest: String = "\(Date().timeIntervalSince1970)", oldest: String = "0", inclusive: Bool = false, count: Int = 100, unreads: Bool = false, success: ((_ history: History)->Void)?, failure: FailureClosure?) {
-        history(.channelsHistory, id: id, latest: latest, oldest: oldest, inclusive: inclusive, count: count, unreads: unreads, success: {
-            (history) -> Void in
-                success?(history)
-            }) {(error) -> Void in
-                failure?(error)
+    public func channelHistoryRequest(id: String, latest: String = "\(NSDate().timeIntervalSince1970)", oldest: String = "0", inclusive: Bool = false, count: Int = 100, unreads: Bool = false) -> URLRequest? {
+        return historyRequest(endpoint: .channelsHistory, id: id, latest: latest, oldest: oldest, inclusive: inclusive, count: count, unreads: unreads)
+    }
+    
+    public func channelHistory(id: String, latest: String = "\(NSDate().timeIntervalSince1970)", oldest: String = "0", inclusive: Bool = false, count: Int = 100, unreads: Bool = false, success: ((_ history: History) -> Void)?, failure: FailureClosure?) {
+        let request = channelHistoryRequest(id: id, latest: latest, oldest: oldest, inclusive: inclusive, count: count, unreads: unreads)
+        history(request: request, success: success, failure: failure)
+    }
+    
+    public func channelInfoRequest(id: String) -> URLRequest? {
+        return infoRequest(endpoint: .channelsInfo, id: id)
+    }
+    
+    public func channelInfo(id: String, success: ((_ channel: Channel) -> Void)?, failure: FailureClosure?) {
+        let request = channelInfoRequest(id: id)
+        info(request: request, type:ChannelType.channel, success: { (channel) -> Void in
+            success?(channel)
+        }) { (error) -> Void in
+            failure?(error)
         }
     }
     
-    public func channelInfo(_ id: String, success: ((_ channel: Channel)->Void)?, failure: FailureClosure?) {
-        info(.channelsInfo, type:.channel, id: id, success: {
-            (channel) -> Void in
-                success?(channel)
-            }) { (error) -> Void in
-                failure?(error)
+    public func channelsListRequest(excludeArchived: Bool = false) -> URLRequest? {
+        return listRequest(endpoint: .channelsList, excludeArchived: excludeArchived)
+    }
+    
+    public func channelsList(excludeArchived: Bool = false, success: ((_ channels: [[String: Any]]?) -> Void)?, failure: FailureClosure?) {
+        let request = channelsListRequest(excludeArchived: excludeArchived)
+        list(request: request, type: .channel, success: { (channels) -> Void in
+            success?(channels)
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
-    public func channelsList(_ excludeArchived: Bool = false, success: ((_ channels: [[String: Any]]?)->Void)?, failure: FailureClosure?) {
-        list(.channelsList, type:.channel, excludeArchived: excludeArchived, success: {
-            (channels) -> Void in
-                success?(channels)
-            }) {(error) -> Void in
-                failure?(error)
+    public func markChannelRequest(channel: String, timestamp: String) -> URLRequest? {
+        return markRequest(endpoint: .channelsMark, channel: channel, timestamp: timestamp)
+    }
+    
+    public func markChannel(channel: String, timestamp: String, success: ((_ ts: String) -> Void)?, failure: FailureClosure?) {
+        let request = markChannelRequest(channel: channel, timestamp: timestamp)
+        mark(request: request, timestamp: timestamp, success: { (ts) -> Void in
+            success?(timestamp)
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
-    public func markChannel(_ channel: String, timestamp: String, success: ((_ ts: String)->Void)?, failure: FailureClosure?) {
-        mark(.channelsMark, channel: channel, timestamp: timestamp, success: {
-            (ts) -> Void in
-                success?(timestamp)
-            }) {(error) -> Void in
-                failure?(error)
+    public func setChannelPurposeRequest(channel: String, purpose: String) -> URLRequest? {
+        return setInfoRequest(endpoint: .channelsSetPurpose, type: .purpose, channel: channel, text: purpose)
+    }
+    
+    public func setChannelPurpose(channel: String, purpose: String, success: ((_ purposeSet: Bool) -> Void)?, failure: FailureClosure?) {
+        let request = setChannelPurposeRequest(channel: channel, purpose: purpose)
+        setInfo(request: request, success: { (purposeSet) -> Void in
+            success?(purposeSet)
+        }) { (error) -> Void in
+            failure?(error)
         }
     }
     
-    public func setChannelPurpose(_ channel: String, purpose: String, success: ((_ purposeSet: Bool)->Void)?, failure: FailureClosure?) {
-        setInfo(.channelsSetPurpose, type: .purpose, channel: channel, text: purpose, success: {
-            (purposeSet) -> Void in
-                success?(purposeSet)
-            }) { (error) -> Void in
-                failure?(error)
-        }
+    public func setChannelTopicRequest(channel: String, topic: String) -> URLRequest? {
+        return setInfoRequest(endpoint: .channelsSetTopic, type: .topic, channel: channel, text: topic)
     }
     
-    public func setChannelTopic(_ channel: String, topic: String, success: ((_ topicSet: Bool)->Void)?, failure: FailureClosure?) {
-        setInfo(.channelsSetTopic, type: .topic, channel: channel, text: topic, success: {
-            (topicSet) -> Void in
-                success?(topicSet)
-            }) {(error) -> Void in
-                failure?(error)
+    public func setChannelTopic(channel: String, topic: String, success: ((_ topicSet: Bool) -> Void)?, failure: FailureClosure?) {
+        let request = setChannelTopicRequest(channel: channel, topic: topic)
+        setInfo(request: request, success: { (topicSet) -> Void in
+            success?(topicSet)
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
     //MARK: - Messaging
-    public func deleteMessage(_ channel: String, ts: String, success: ((_ deleted: Bool)->Void)?, failure: FailureClosure?) {
+    public func deleteMessageRequest(channel: String, ts: String) -> URLRequest? {
         let parameters: [String: Any] = ["channel": channel, "ts": ts]
-        networkInterface.request(.chatDelete, token: token, parameters: parameters, successClosure: { (response) -> Void in
-                success?(true)
-            }) {(error) -> Void in
-                failure?(error)
+        return networkInterface.request(endpoint: .chatDelete, token: token, parameters: parameters)
+    }
+    
+    public func deleteMessage(channel: String, ts: String, success: ((_ deleted: Bool) -> Void)?, failure: FailureClosure?) {
+        let request = deleteMessageRequest(channel: channel, ts: ts)
+        networkInterface.fire(request: request, successClosure: { (response) -> Void in
+            success?(true)
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
-    public func sendMessage(_ channel: String, text: String, username: String? = nil, asUser: Bool? = nil, parse: ParseMode? = nil, linkNames: Bool? = nil, attachments: [Attachment?]? = nil, unfurlLinks: Bool? = nil, unfurlMedia: Bool? = nil, iconURL: String? = nil, iconEmoji: String? = nil, success: (((ts: String?, channel: String?))->Void)?, failure: FailureClosure?) {
-        let parameters: [String: Any?] = ["channel": channel, "text": text.slackFormatEscaping, "as_user": asUser, "parse": parse?.rawValue, "link_names": linkNames, "unfurl_links": unfurlLinks, "unfurlMedia": unfurlMedia, "username": username, "icon_url": iconURL, "icon_emoji": iconEmoji, "attachments": encodeAttachments(attachments)]
-        networkInterface.request(.chatPostMessage, token: token, parameters: WebAPI.filterNilParameters(parameters), successClosure: {
-            (response) -> Void in
-                success?((ts: response["ts"] as? String, response["channel"] as? String))
-            }) {(error) -> Void in
-                failure?(error)
-        }
+    public func sendMessageRequest(channel: String, text: String, username: String? = nil, asUser: Bool? = nil, parse: ParseMode? = nil, linkNames: Bool? = nil, attachments: [Attachment?]? = nil, unfurlLinks: Bool? = nil, unfurlMedia: Bool? = nil, iconURL: String? = nil, iconEmoji: String? = nil) -> URLRequest? {
+        let parameters: [String: Any?] = ["channel": channel, "text": text.slackFormatEscaping, "as_user": asUser, "parse": parse?.rawValue, "link_names": linkNames, "unfurl_links": unfurlLinks, "unfurlMedia": unfurlMedia, "username": username, "attachments": encodeAttachments(attachments), "icon_url": iconURL, "icon_emoji": iconEmoji]
+        return networkInterface.request(endpoint: .chatPostMessage, token: token, parameters: WebAPI.filterNilParameters(parameters))
     }
     
-    public func sendMeMessage(_ channel: String, text: String, success: (((ts: String?, channel: String?))->Void)?, failure: FailureClosure?) {
-        let parameters: [String: Any?] = ["channel": channel, "text": text.slackFormatEscaping]
-        networkInterface.request(.chatMeMessage, token: token, parameters: WebAPI.filterNilParameters(parameters), successClosure: {
-            (response) -> Void in
+    public func sendMessage(channel: String, text: String, username: String? = nil, asUser: Bool? = nil, parse: ParseMode? = nil, linkNames: Bool? = nil, attachments: [Attachment?]? = nil, unfurlLinks: Bool? = nil, unfurlMedia: Bool? = nil, iconURL: String? = nil, iconEmoji: String? = nil, success: (((ts: String?, channel: String?)) -> Void)?, failure: FailureClosure?) {
+        let request = sendMessageRequest(channel: channel, text: text, username: username, asUser: asUser, parse: parse, linkNames: linkNames, attachments: attachments, unfurlLinks: unfurlLinks, unfurlMedia: unfurlMedia, iconURL: iconURL, iconEmoji: iconEmoji)
+        networkInterface.fire(request: request, successClosure: { (response) -> Void in
             success?((ts: response["ts"] as? String, response["channel"] as? String))
         }) {(error) -> Void in
             failure?(error)
         }
     }
     
-    public func updateMessage(_ channel: String, ts: String, message: String, attachments: [Attachment?]? = nil, parse:ParseMode = .none, linkNames: Bool = false, success: ((_ updated: Bool)->Void)?, failure: FailureClosure?) {
-        let parameters: [String: Any?] = ["channel": channel, "ts": ts, "text": message.slackFormatEscaping, "parse": parse.rawValue, "link_names": linkNames, "attachments": encodeAttachments(attachments)]
-        networkInterface.request(.chatUpdate, token: token, parameters: WebAPI.filterNilParameters(parameters), successClosure: {
-            (response) -> Void in
-                success?(true)
-            }) {(error) -> Void in
-                failure?(error)
+    public func updateMessageRequest(channel: String, ts: String, message: String, attachments: [Attachment?]? = nil, parse: ParseMode = .none, linkNames: Bool = false) -> URLRequest? {
+        let parameters: [String: Any?] = ["channel": channel, "ts": ts, "text": message.slackFormatEscaping, "parse": parse.rawValue, "link_names": linkNames, "attachments":encodeAttachments(attachments)]
+        return networkInterface.request(endpoint: .chatUpdate, token: token, parameters: WebAPI.filterNilParameters(parameters))
+    }
+    
+    public func updateMessage(channel: String, ts: String, message: String, attachments: [Attachment?]? = nil, parse: ParseMode = .none, linkNames: Bool = false, success: ((_ updated: Bool) -> Void)?, failure: FailureClosure?) {
+        let request = updateMessageRequest(channel: channel, ts: ts, message: message, attachments: attachments, parse: parse, linkNames: linkNames)
+        networkInterface.fire(request: request, successClosure: { (response) -> Void in
+            success?(true)
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
     //MARK: - Do Not Disturb
-    public func dndInfo(_ user: String? = nil, success: ((_ status: DoNotDisturbStatus)->Void)?, failure: FailureClosure?) {
+    public func dndInfoRequest(user: String? = nil) -> URLRequest? {
         let parameters: [String: Any?] = ["user": user]
-        networkInterface.request(.dndInfo, token: token, parameters: WebAPI.filterNilParameters(parameters), successClosure: {
-            (response) -> Void in
-                success?(DoNotDisturbStatus(status: response))
-            }) {(error) -> Void in
-                failure?(error)
+        return networkInterface.request(endpoint: .dndInfo, token: token, parameters: WebAPI.filterNilParameters(parameters))
+    }
+    
+    public func dndInfo(user: String? = nil, success: ((_ status: DoNotDisturbStatus) -> Void)?, failure: FailureClosure?) {
+        let request = dndInfoRequest(user: user)
+        networkInterface.fire(request: request, successClosure: { (response) -> Void in
+            success?(DoNotDisturbStatus(status: response))
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
-    public func dndTeamInfo(_ users: [String]? = nil, success: ((_ statuses: [String: DoNotDisturbStatus])->Void)?, failure: FailureClosure?) {
-        let parameters: [String: Any?] = ["users": users?.joined(separator: ",")]
-        networkInterface.request(.dndTeamInfo, token: token, parameters: WebAPI.filterNilParameters(parameters), successClosure: {
-            (response) -> Void in
-                guard let usersDictionary = response["users"] as? [String: Any] else {
-                    success?([:])
-                    return
-                }
-                success?(self.enumerateDNDStatuses(usersDictionary))
-            }) {(error) -> Void in
-                failure?(error)
+    public func dndTeamInfoRequest(users: [String]? = nil) -> URLRequest? {
+        let parameters: [String: Any?] = ["users":users?.joined(separator: ",")]
+        return networkInterface.request(endpoint: .dndTeamInfo, token: token, parameters: WebAPI.filterNilParameters(parameters))
+    }
+    
+    public func dndTeamInfo(users: [String]? = nil, success: ((_ statuses: [String: DoNotDisturbStatus]) -> Void)?, failure: FailureClosure?) {
+        let request = dndTeamInfoRequest(users: users)
+        networkInterface.fire(request: request, successClosure: { (response) -> Void in
+            guard let usersDictionary = response["users"] as? [String: Any] else {
+                success?([:])
+                return
+            }
+            success?(self.enumerateDNDStatuses(usersDictionary))
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
     //MARK: - Emoji
-    public func emojiList(_ success: ((_ emojiList: [String: Any]?)->Void)?, failure: FailureClosure?) {
-        networkInterface.request(.emojiList, token: token, parameters: nil, successClosure: {
-            (response) -> Void in
-                success?(response["emoji"] as? [String: Any])
-            }) { (error) -> Void in
-                failure?(error)
+    public func emojiListRequest() -> URLRequest? {
+        return networkInterface.request(endpoint: .emojiList, token: token, parameters: nil)
+    }
+    
+    public func emojiList(success: ((_ emojiList: [String: Any]?) -> Void)?, failure: FailureClosure?) {
+        let request = emojiListRequest()
+        networkInterface.fire(request: request, successClosure: { (response) -> Void in
+            success?(response["emoji"] as? [String: Any])
+        }) { (error) -> Void in
+            failure?(error)
         }
     }
     
     //MARK: - Files
-    public func deleteFile(_ fileID: String, success: ((_ deleted: Bool)->Void)?, failure: FailureClosure?) {
+    public func deleteFileRequest(fileID: String) -> URLRequest? {
         let parameters = ["file": fileID]
-        networkInterface.request(.filesDelete, token: token, parameters: parameters as [String : Any]?, successClosure: {
-            (response) -> Void in
-                success?(true)
-            }) {(error) -> Void in
-                failure?(error)
+        return networkInterface.request(endpoint: .filesDelete, token: token, parameters: parameters)
+    }
+    
+    public func deleteFile(fileID: String, success: ((_ deleted: Bool) -> Void)?, failure: FailureClosure?) {
+        let request = deleteFileRequest(fileID: fileID)
+        networkInterface.fire(request: request, successClosure: { (response) -> Void in
+            success?(true)
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
-    public func fileInfo(_ fileID: String, commentCount: Int = 100, totalPages: Int = 1, success: ((_ file: File)->Void)?, failure: FailureClosure?) {
-        let parameters: [String: Any] = ["file": fileID, "count": commentCount, "totalPages": totalPages]
-        networkInterface.request(.filesInfo, token: token, parameters: parameters, successClosure: {
-            (response) in
-                var file = File(file: response["file"] as? [String: Any])
-                (response["comments"] as? [[String: Any]])?.forEach { comment in
-                    let comment = Comment(comment: comment)
-                    if let id = comment.id {
-                        file.comments[id] = comment
-                    }
+    public func fileInfoRequest(fileID: String, commentCount: Int = 100, totalPages: Int = 1) -> URLRequest? {
+        let parameters: [String: Any] = ["file":fileID, "count": commentCount, "totalPages":totalPages]
+        return networkInterface.request(endpoint: .filesInfo, token: token, parameters: parameters)
+    }
+    
+    public func fileInfo(fileID: String, commentCount: Int = 100, totalPages: Int = 1, success: ((_ file: File) -> Void)?, failure: FailureClosure?) {
+        let request = fileInfoRequest(fileID: fileID, commentCount: commentCount, totalPages: totalPages)
+        networkInterface.fire(request: request, successClosure: { (response) in
+            var file = File(file: response["file"] as? [String: Any])
+            (response["comments"] as? [[String: Any]])?.forEach { comment in
+                let comment = Comment(comment: comment)
+                if let id = comment.id {
+                    file.comments[id] = comment
                 }
-                success?(file)
-            }) {(error) in
-                failure?(error)
+            }
+            success?(file)
+        }) {(error) in
+            failure?(error)
         }
     }
     
@@ -326,416 +389,603 @@ public final class WebAPI {
     }
     
     //MARK: - File Comments
-    public func addFileComment(_ fileID: String, comment: String, success: ((_ comment: Comment)->Void)?, failure: FailureClosure?) {
-        let parameters: [String: Any] = ["file": fileID, "comment": comment.slackFormatEscaping]
-        networkInterface.request(.filesCommentsAdd, token: token, parameters: parameters, successClosure: {
-            (response) -> Void in
-                success?(Comment(comment: response["comment"] as? [String: Any]))
-            }) {(error) -> Void in
-                failure?(error)
-        }
+    public func addFileCommentRequest(fileID: String, comment: String) -> URLRequest? {
+        let parameters: [String: Any] = ["file":fileID, "comment":comment.slackFormatEscaping]
+        return networkInterface.request(endpoint: .filesCommentsAdd, token: token, parameters: parameters)
     }
     
-    public func editFileComment(_ fileID: String, commentID: String, comment: String, success: ((_ comment: Comment)->Void)?, failure: FailureClosure?) {
-        let parameters: [String: Any] = ["file": fileID, "id": commentID, "comment": comment.slackFormatEscaping]
-        networkInterface.request(.filesCommentsEdit, token: token, parameters: parameters, successClosure: {
-            (response) -> Void in
+    public func addFileComment(fileID: String, comment: String, success: ((_ comment: Comment) -> Void)?, failure: FailureClosure?) {
+        let request = addFileCommentRequest(fileID: fileID, comment: comment)
+        networkInterface.fire(request: request, successClosure: { (response) -> Void in
             success?(Comment(comment: response["comment"] as? [String: Any]))
-            }) {(error) -> Void in
-                failure?(error)
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
-    public func deleteFileComment(_ fileID: String, commentID: String, success: ((_ deleted: Bool?)->Void)?, failure: FailureClosure?) {
-        let parameters: [String: Any] = ["file": fileID, "id": commentID]
-        networkInterface.request(.filesCommentsDelete, token: token, parameters: parameters, successClosure: {
-            (response) -> Void in
-                success?(true)
-            }) {(error) -> Void in
-                failure?(error)
+    public func editFileCommentRequest(fileID: String, commentID: String, comment: String) -> URLRequest? {
+        let parameters: [String: Any] = ["file":fileID, "id":commentID, "comment":comment.slackFormatEscaping]
+        return networkInterface.request(endpoint: .filesCommentsEdit, token: token, parameters: parameters)
+    }
+    
+    public func editFileComment(fileID: String, commentID: String, comment: String, success: ((_ comment: Comment) -> Void)?, failure: FailureClosure?) {
+        let request = editFileCommentRequest(fileID: fileID, commentID: commentID, comment: comment)
+        networkInterface.fire(request: request, successClosure: { (response) -> Void in
+            success?(Comment(comment: response["comment"] as? [String: Any]))
+        }) {(error) -> Void in
+            failure?(error)
+        }
+    }
+    
+    public func deleteFileCommentRequest(fileID: String, commentID: String) -> URLRequest? {
+        let parameters: [String: Any] = ["file":fileID, "id": commentID]
+        return networkInterface.request(endpoint: .filesCommentsDelete, token: token, parameters: parameters)
+    }
+    
+    public func deleteFileComment(fileID: String, commentID: String, success: ((_ deleted: Bool?) -> Void)?, failure: FailureClosure?) {
+        let request = deleteFileCommentRequest(fileID: fileID, commentID: commentID)
+        networkInterface.fire(request: request, successClosure: { (response) -> Void in
+            success?(true)
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
     //MARK: - Groups
-    public func closeGroup(_ groupID: String, success: ((_ closed: Bool)->Void)?, failure: FailureClosure?) {
-        close(.groupsClose, channelID: groupID, success: {
-            (closed) -> Void in
-                success?(closed)
-            }) {(error) -> Void in
-                failure?(error)
+    public func closeGroupRequest(groupID: String) -> URLRequest? {
+        return closeRequest(endpoint: .groupsClose, channelID: groupID)
+    }
+    
+    public func closeGroup(groupID: String, success: ((_ closed: Bool) -> Void)?, failure: FailureClosure?) {
+        let request = closeGroupRequest(groupID: groupID)
+        close(request: request, success: { (closed) -> Void in
+            success?(closed)
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
-    public func groupHistory(_ id: String, latest: String = "\(Date().timeIntervalSince1970)", oldest: String = "0", inclusive: Bool = false, count: Int = 100, unreads: Bool = false, success: ((_ history: History)->Void)?, failure: FailureClosure?) {
-        history(.groupsHistory, id: id, latest: latest, oldest: oldest, inclusive: inclusive, count: count, unreads: unreads, success: {
-            (history) -> Void in
-                success?(history)
-            }) {(error) -> Void in
-                failure?(error)
+    public func groupHistoryRequest(id: String, latest: String = "\(NSDate().timeIntervalSince1970)", oldest: String = "0", inclusive: Bool = false, count: Int = 100, unreads: Bool = false) -> URLRequest? {
+        return historyRequest(endpoint: .groupsHistory, id: id, latest: latest, oldest: oldest, inclusive: inclusive, count: count, unreads: unreads)
+    }
+    
+    public func groupHistory(id: String, latest: String = "\(NSDate().timeIntervalSince1970)", oldest: String = "0", inclusive: Bool = false, count: Int = 100, unreads: Bool = false, success: ((_ history: History) -> Void)?, failure: FailureClosure?) {
+        let request = groupHistoryRequest(id: id, latest: latest, oldest: oldest, inclusive: inclusive, count: count, unreads: unreads)
+        history(request: request, success: { (history) -> Void in
+            success?(history)
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
-    public func groupInfo(_ id: String, success: ((_ channel: Channel)->Void)?, failure: FailureClosure?) {
-        info(.groupsInfo, type:.group, id: id, success: {
-            (channel) -> Void in
-                success?(channel)
-            }) {(error) -> Void in
-                failure?(error)
+    public func groupInfoRequest(id: String) -> URLRequest? {
+        return infoRequest(endpoint: .groupsInfo, id: id)
+    }
+    
+    public func groupInfo(id: String, success: ((_ channel: Channel) -> Void)?, failure: FailureClosure?) {
+        let request = groupInfoRequest(id: id)
+        info(request: request, type:ChannelType.group, success: { (channel) -> Void in
+            success?(channel)
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
-    public func groupsList(_ excludeArchived: Bool = false, success: ((_ channels: [[String: Any]]?)->Void)?, failure: FailureClosure?) {
-        list(.groupsList, type:.group, excludeArchived: excludeArchived, success: {
-            (channels) -> Void in
-                success?(channels)
-            }) {(error) -> Void in
-                failure?(error)
+    public func groupsListRequest(excludeArchived: Bool = false) -> URLRequest? {
+        return listRequest(endpoint: .groupsList, excludeArchived: excludeArchived)
+    }
+    
+    public func groupsList(excludeArchived: Bool = false, success: ((_ channels: [[String: Any]]?) -> Void)?, failure: FailureClosure?) {
+        let request = groupsListRequest(excludeArchived: excludeArchived)
+        list(request: request, type:ChannelType.group, success: { (channels) -> Void in
+            success?(channels)
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
-    public func markGroup(_ channel: String, timestamp: String, success: ((_ ts: String)->Void)?, failure: FailureClosure?) {
-        mark(.groupsMark, channel: channel, timestamp: timestamp, success: {
-            (ts) -> Void in
-                success?(timestamp)
-            }) {(error) -> Void in
-                failure?(error)
+    public func markGroupRequest(channel: String, timestamp: String) -> URLRequest? {
+        return markRequest(endpoint: .groupsMark, channel: channel, timestamp: timestamp)
+    }
+    
+    public func markGroup(channel: String, timestamp: String, success: ((_ ts: String) -> Void)?, failure: FailureClosure?) {
+        let request = markGroupRequest(channel: channel, timestamp: timestamp)
+        mark(request: request, timestamp: timestamp, success: { (ts) -> Void in
+            success?(timestamp)
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
-    public func openGroup(_ channel: String, success: ((_ opened: Bool)->Void)?, failure: FailureClosure?) {
+    public func openGroupRequest(channel: String) -> URLRequest? {
         let parameters = ["channel":channel]
-        networkInterface.request(.groupsOpen, token: token, parameters: parameters as [String: Any]?, successClosure: {
+        return networkInterface.request(endpoint: .groupsOpen, token: token, parameters: parameters)
+    }
+    
+    public func openGroup(channel: String, success: ((_ opened: Bool) -> Void)?, failure: FailureClosure?) {
+        let request = openGroupRequest(channel: channel)
+        networkInterface.fire(request: request, successClosure: {
             (response) -> Void in
-                success?(true)
-            }) {(error) -> Void in
-                failure?(error)
+            success?(true)
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
-    public func setGroupPurpose(_ channel: String, purpose: String, success: ((_ purposeSet: Bool)->Void)?, failure: FailureClosure?) {
-        setInfo(.groupsSetPurpose, type: .purpose, channel: channel, text: purpose, success: {
+    public func setGroupPurposeRequest(channel: String, purpose: String) -> URLRequest? {
+        return setInfoRequest(endpoint: .groupsSetPurpose, type: .purpose, channel: channel, text: purpose)
+    }
+    
+    public func setGroupPurpose(channel: String, purpose: String, success: ((_ purposeSet: Bool) -> Void)?, failure: FailureClosure?) {
+        let request = setGroupPurposeRequest(channel: channel, purpose: purpose)
+        setInfo(request: request, success: {
             (purposeSet) -> Void in
-                success?(purposeSet)
-            }) {(error) -> Void in
-                failure?(error)
+            success?(purposeSet)
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
-    public func setGroupTopic(_ channel: String, topic: String, success: ((_ topicSet: Bool)->Void)?, failure: FailureClosure?) {
-        setInfo(.groupsSetTopic, type: .topic, channel: channel, text: topic, success: {
+    public func setGroupTopicRequest(channel: String, topic: String) -> URLRequest? {
+        return setInfoRequest(endpoint: .groupsSetTopic, type: .topic, channel: channel, text: topic)
+    }
+    
+    public func setGroupTopic(channel: String, topic: String, success: ((_ topicSet: Bool) -> Void)?, failure: FailureClosure?) {
+        let request = setGroupTopicRequest(channel: channel, topic: topic)
+        setInfo(request: request, success: {
             (topicSet) -> Void in
-                success?(topicSet)
-            }) {(error) -> Void in
-                failure?(error)
+            success?(topicSet)
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
     //MARK: - IM
-    public func closeIM(_ channel: String, success: ((_ closed: Bool)->Void)?, failure: FailureClosure?) {
-        close(.imClose, channelID: channel, success: {
+    public func closeIMRequest(channel: String) -> URLRequest? {
+        return closeRequest(endpoint: .imClose, channelID: channel)
+    }
+    
+    public func closeIM(channel: String, success: ((_ closed: Bool) -> Void)?, failure: FailureClosure?) {
+        let request = closeIMRequest(channel: channel)
+        close(request: request, success: {
             (closed) -> Void in
-                success?(closed)
-            }) {(error) -> Void in
-                failure?(error)
+            success?(closed)
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
-    public func imHistory(_ id: String, latest: String = "\(Date().timeIntervalSince1970)", oldest: String = "0", inclusive: Bool = false, count: Int = 100, unreads: Bool = false, success: ((_ history: History)->Void)?, failure: FailureClosure?) {
-        history(.imHistory, id: id, latest: latest, oldest: oldest, inclusive: inclusive, count: count, unreads: unreads, success: {
+    public func imHistoryRequest(id: String, latest: String = "\(NSDate().timeIntervalSince1970)", oldest: String = "0", inclusive: Bool = false, count: Int = 100, unreads: Bool = false) -> URLRequest? {
+        return historyRequest(endpoint: .imHistory, id: id, latest: latest, oldest: oldest, inclusive: inclusive, count: count, unreads: unreads)
+    }
+    
+    public func imHistory(id: String, latest: String = "\(NSDate().timeIntervalSince1970)", oldest: String = "0", inclusive: Bool = false, count: Int = 100, unreads: Bool = false, success: ((_ history: History) -> Void)?, failure: FailureClosure?) {
+        let request = imHistoryRequest(id: id, latest: latest, oldest: oldest, inclusive: inclusive, count: count, unreads: unreads)
+        history(request: request, success: {
             (history) -> Void in
-                success?(history)
-            }) {(error) -> Void in
-                failure?(error)
+            success?(history)
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
-    public func imsList(_ excludeArchived: Bool = false, success: ((_ channels: [[String: Any]]?)->Void)?, failure: FailureClosure?) {
-        list(.imList, type:.im, excludeArchived: excludeArchived, success: {
+    public func imsListRequest(excludeArchived: Bool = false) -> URLRequest? {
+        return listRequest(endpoint: .imList, excludeArchived: excludeArchived)
+    }
+    
+    public func imsList(excludeArchived: Bool = false, success: ((_ channels: [[String: Any]]?) -> Void)?, failure: FailureClosure?) {
+        let request = imsListRequest(excludeArchived: excludeArchived)
+        list(request: request, type: .im, success: {
             (channels) -> Void in
-                success?(channels)
-            }) {(error) -> Void in
-                failure?(error)
+            success?(channels)
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
-    public func markIM(_ channel: String, timestamp: String, success: ((_ ts: String)->Void)?, failure: FailureClosure?) {
-        mark(.imMark, channel: channel, timestamp: timestamp, success: {
+    public func markIMRequest(channel: String, timestamp: String) -> URLRequest? {
+        return markRequest(endpoint: .imMark, channel: channel, timestamp: timestamp)
+    }
+    
+    public func markIM(channel: String, timestamp: String, success: ((_ ts: String) -> Void)?, failure: FailureClosure?) {
+        let request = markIMRequest(channel: channel, timestamp: timestamp)
+        mark(request: request, timestamp: timestamp, success: {
             (ts) -> Void in
-                success?(timestamp)
-            }) {(error) -> Void in
-                failure?(error)
+            success?(timestamp)
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
-    public func openIM(_ userID: String, success: ((_ imID: String?)->Void)?, failure: FailureClosure?) {
-        let parameters = ["user": userID]
-        networkInterface.request(.imOpen, token: token, parameters: parameters as [String: Any]?, successClosure: {
+    public func openIMRequest(userID: String) -> URLRequest? {
+        let parameters = ["user":userID]
+        return networkInterface.request(endpoint: .imOpen, token: token, parameters: parameters)
+    }
+    
+    public func openIM(userID: String, success: ((_ imID: String?) -> Void)?, failure: FailureClosure?) {
+        let request = openIMRequest(userID: userID)
+        networkInterface.fire(request: request, successClosure: {
             (response) -> Void in
-                let group = response["channel"] as? [String: Any]
-                success?(group?["id"] as? String)
-            }) {(error) -> Void in
-                failure?(error)
+            let group = response["channel"] as? [String: Any]
+            success?(group?["id"] as? String)
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
     //MARK: - MPIM
-    public func closeMPIM(_ channel: String, success: ((_ closed: Bool)->Void)?, failure: FailureClosure?) {
-        close(.mpimClose, channelID: channel, success: {
+    public func closeMPIMRequest(channel: String) -> URLRequest? {
+        return closeRequest(endpoint: .mpimClose, channelID: channel)
+    }
+    
+    public func closeMPIM(channel: String, success: ((_ closed: Bool) -> Void)?, failure: FailureClosure?) {
+        let request = closeMPIMRequest(channel: channel)
+        close(request: request, success: {
             (closed) -> Void in
-                success?(closed)
-            }) {(error) -> Void in
-                failure?(error)
+            success?(closed)
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
-    public func mpimHistory(_ id: String, latest: String = "\(Date().timeIntervalSince1970)", oldest: String = "0", inclusive: Bool = false, count: Int = 100, unreads: Bool = false, success: ((_ history: History)->Void)?, failure: FailureClosure?) {
-        history(.mpimHistory, id: id, latest: latest, oldest: oldest, inclusive: inclusive, count: count, unreads: unreads, success: {
+    public func mpimHistoryRequest(id: String, latest: String = "\(NSDate().timeIntervalSince1970)", oldest: String = "0", inclusive: Bool = false, count: Int = 100, unreads: Bool = false) -> URLRequest? {
+        return historyRequest(endpoint: .mpimHistory, id: id, latest: latest, oldest: oldest, inclusive: inclusive, count: count, unreads: unreads)
+    }
+    
+    public func mpimHistory(id: String, latest: String = "\(NSDate().timeIntervalSince1970)", oldest: String = "0", inclusive: Bool = false, count: Int = 100, unreads: Bool = false, success: ((_ history: History) -> Void)?, failure: FailureClosure?) {
+        let request = mpimHistoryRequest(id: id, latest: latest, oldest: oldest, inclusive: inclusive, count: count, unreads: unreads)
+        history(request: request, success: {
             (history) -> Void in
-                success?(history)
-            }) {(error) -> Void in
-                failure?(error)
+            success?(history)
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
-    public func mpimsList(_ excludeArchived: Bool = false, success: ((_ channels: [[String: Any]]?)->Void)?, failure: FailureClosure?) {
-        list(.mpimList, type:.group, excludeArchived: excludeArchived, success: {
+    public func mpimsListRequest(excludeArchived: Bool = false) -> URLRequest? {
+        return listRequest(endpoint: .mpimList, excludeArchived: excludeArchived)
+    }
+    
+    public func mpimsList(excludeArchived: Bool = false, success: ((_ channels: [[String: Any]]?) -> Void)?, failure: FailureClosure?) {
+        let request = mpimsListRequest(excludeArchived: excludeArchived)
+        list(request: request, type:ChannelType.group, success: {
             (channels) -> Void in
-                success?(channels)
-            }) {(error) -> Void in
-                failure?(error)
+            success?(channels)
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
-    public func markMPIM(_ channel: String, timestamp: String, success: ((_ ts: String)->Void)?, failure: FailureClosure?) {
-        mark(.mpimMark, channel: channel, timestamp: timestamp, success: {
+    public func markMPIMRequest(channel: String, timestamp: String) -> URLRequest? {
+        return markRequest(endpoint: .mpimMark, channel: channel, timestamp: timestamp)
+    }
+    
+    public func markMPIM(channel: String, timestamp: String, success: ((_ ts: String) -> Void)?, failure: FailureClosure?) {
+        let request = markMPIMRequest(channel: channel, timestamp: timestamp)
+        mark(request: request, timestamp: timestamp, success: {
             (ts) -> Void in
-                success?(timestamp)
-            }) {(error) -> Void in
-                failure?(error)
+            success?(timestamp)
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
-    public func openMPIM(_ userIDs: [String], success: ((_ mpimID: String?)->Void)?, failure: FailureClosure?) {
-        let parameters = ["users": userIDs.joined(separator: ",")]
-        networkInterface.request(.mpimOpen, token: token, parameters: parameters as [String: Any]?, successClosure: {
+    public func openMPIMRequest(userIDs: [String]) -> URLRequest? {
+        let parameters = ["users":userIDs.joined(separator: ",")]
+        return networkInterface.request(endpoint: .mpimOpen, token: token, parameters: parameters)
+    }
+    
+    public func openMPIM(userIDs: [String], success: ((_ mpimID: String?) -> Void)?, failure: FailureClosure?) {
+        let request = openMPIMRequest(userIDs: userIDs)
+        networkInterface.fire(request: request, successClosure: {
             (response) -> Void in
-                let group = response["group"] as? [String: Any]
-                success?(group?["id"] as? String)
-            }) {(error) -> Void in
-                failure?(error)
+            let group = response["group"] as? [String: Any]
+            success?(group?["id"] as? String)
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
     //MARK: - Pins
-    public func pinItem(_ channel: String, file: String? = nil, fileComment: String? = nil, timestamp: String? = nil, success: ((_ pinned: Bool)->Void)?, failure: FailureClosure?) {
-        pin(.pinsAdd, channel: channel, file: file, fileComment: fileComment, timestamp: timestamp, success: {
+    public func pinItemRequest(channel: String, file: String? = nil, fileComment: String? = nil, timestamp: String? = nil) -> URLRequest? {
+        return pinRequest(endpoint: .pinsAdd, channel: channel, file: file, fileComment: fileComment, timestamp: timestamp)
+    }
+    
+    public func pinItem(channel: String, file: String? = nil, fileComment: String? = nil, timestamp: String? = nil, success: ((_ pinned: Bool) -> Void)?, failure: FailureClosure?) {
+        let request = pinItemRequest(channel: channel, file: file, fileComment: fileComment, timestamp: timestamp)
+        pin(request: request, success: {
             (ok) -> Void in
-                success?(ok)
-            }) {(error) -> Void in
-                failure?(error)
+            success?(ok)
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
-    public func unpinItem(_ channel: String, file: String? = nil, fileComment: String? = nil, timestamp: String? = nil, success: ((_ unpinned: Bool)->Void)?, failure: FailureClosure?) {
-        pin(.pinsRemove, channel: channel, file: file, fileComment: fileComment, timestamp: timestamp, success: {
+    public func unpinItemRequest(channel: String, file: String? = nil, fileComment: String? = nil, timestamp: String? = nil) -> URLRequest? {
+        return pinRequest(endpoint: .pinsRemove, channel: channel, file: file, fileComment: fileComment, timestamp: timestamp)
+    }
+    
+    public func unpinItem(channel: String, file: String? = nil, fileComment: String? = nil, timestamp: String? = nil, success: ((_ unpinned: Bool) -> Void)?, failure: FailureClosure?) {
+        let request = unpinItemRequest(channel: channel, file: file, fileComment: fileComment, timestamp: timestamp)
+        pin(request: request, success: {
             (ok) -> Void in
-                success?(ok)
-            }) {(error) -> Void in
-                failure?(error)
+            success?(ok)
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
-    fileprivate func pin(_ endpoint: Endpoint, channel: String, file: String? = nil, fileComment: String? = nil, timestamp: String? = nil, success: ((_ ok: Bool)->Void)?, failure: FailureClosure?) {
-        let parameters: [String: Any?] = ["channel": channel, "file": file, "file_comment": fileComment, "timestamp": timestamp]
-        networkInterface.request(endpoint, token: token, parameters: WebAPI.filterNilParameters(parameters), successClosure: {
+    private func pinRequest(endpoint: Endpoint, channel: String, file: String? = nil, fileComment: String? = nil, timestamp: String? = nil) -> URLRequest? {
+        let parameters: [String: Any?] = ["channel":channel, "file":file, "file_comment":fileComment, "timestamp":timestamp]
+        return networkInterface.request(endpoint: endpoint, token: token, parameters: WebAPI.filterNilParameters(parameters))
+    }
+    
+    private func pin(request: URLRequest?, success: ((_ ok: Bool) -> Void)?, failure: FailureClosure?) {
+        networkInterface.fire(request: request, successClosure: {
             (response) -> Void in
-                success?(true)
-            }){(error) -> Void in
-                failure?(error)
+            success?(true)
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
     //MARK: - Reactions
     // One of file, file_comment, or the combination of channel and timestamp must be specified.
-    public func addReaction(_ name: String, file: String? = nil, fileComment: String? = nil, channel: String? = nil, timestamp: String? = nil, success: ((_ reacted: Bool)->Void)?, failure: FailureClosure?) {
-        react(.reactionsAdd, name: name, file: file, fileComment: fileComment, channel: channel, timestamp: timestamp, success: {
+    public func addReactionRequest(name: String, file: String? = nil, fileComment: String? = nil, channel: String? = nil, timestamp: String? = nil) -> URLRequest? {
+        return reactRequest(endpoint: .reactionsAdd, name: name, file: file, fileComment: fileComment, channel: channel, timestamp: timestamp)
+    }
+    
+    public func addReaction(name: String, file: String? = nil, fileComment: String? = nil, channel: String? = nil, timestamp: String? = nil, success: ((_ reacted: Bool) -> Void)?, failure: FailureClosure?) {
+        let request = addReactionRequest(name: name, file: file, fileComment: fileComment, channel: channel, timestamp: timestamp)
+        react(request: request, success: {
             (ok) -> Void in
-                success?(ok)
-            }) {(error) -> Void in
-                failure?(error)
+            success?(ok)
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
     // One of file, file_comment, or the combination of channel and timestamp must be specified.
-    public func removeReaction(_ name: String, file: String? = nil, fileComment: String? = nil, channel: String? = nil, timestamp: String? = nil, success: ((_ unreacted: Bool)->Void)?, failure: FailureClosure?) {
-        react(.reactionsRemove, name: name, file: file, fileComment: fileComment, channel: channel, timestamp: timestamp, success: {
+    public func removeReactionRequest(name: String, file: String? = nil, fileComment: String? = nil, channel: String? = nil, timestamp: String? = nil) -> URLRequest? {
+        return reactRequest(endpoint: .reactionsRemove, name: name, file: file, fileComment: fileComment, channel: channel, timestamp: timestamp)
+    }
+    
+    public func removeReaction(name: String, file: String? = nil, fileComment: String? = nil, channel: String? = nil, timestamp: String? = nil, success: ((_ unreacted: Bool) -> Void)?, failure: FailureClosure?) {
+        let request = removeReactionRequest(name: name, file: file, fileComment: fileComment, channel: channel, timestamp: timestamp)
+        react(request: request, success: {
             (ok) -> Void in
-                success?(ok)
-            }) {(error) -> Void in
-                failure?(error)
+            success?(ok)
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
-    fileprivate func react(_ endpoint: Endpoint, name: String, file: String? = nil, fileComment: String? = nil, channel: String? = nil, timestamp: String? = nil, success: ((_ ok: Bool)->Void)?, failure: FailureClosure?) {
-        let parameters: [String: Any?] = ["name": name, "file": file, "file_comment": fileComment, "channel": channel, "timestamp": timestamp]
-        networkInterface.request(endpoint, token: token, parameters: WebAPI.filterNilParameters(parameters), successClosure: {
+    private func reactRequest(endpoint: Endpoint, name: String, file: String? = nil, fileComment: String? = nil, channel: String? = nil, timestamp: String? = nil) -> URLRequest? {
+        let parameters: [String: Any?] = ["name":name, "file":file, "file_comment":fileComment, "channel":channel, "timestamp":timestamp]
+        return networkInterface.request(endpoint: endpoint, token: token, parameters: WebAPI.filterNilParameters(parameters))
+    }
+    
+    private func react(request: URLRequest?, success: ((_ ok: Bool) -> Void)?, failure: FailureClosure?) {
+        networkInterface.fire(request: request, successClosure: {
             (response) -> Void in
-                success?(true)
-            }) {(error) -> Void in
-                failure?(error)
+            success?(true)
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
     //MARK: - Stars
     // One of file, file_comment, channel, or the combination of channel and timestamp must be specified.
-    public func addStar(_ file: String? = nil, fileComment: String? = nil, channel: String?  = nil, timestamp: String? = nil, success: ((_ starred: Bool)->Void)?, failure: FailureClosure?) {
-        star(.starsAdd, file: file, fileComment: fileComment, channel: channel, timestamp: timestamp, success: {
+    public func addStarRequest(file: String? = nil, fileComment: String? = nil, channel: String?  = nil, timestamp: String? = nil) -> URLRequest? {
+        return starRequest(endpoint: .starsAdd, file: file, fileComment: fileComment, channel: channel, timestamp: timestamp)
+    }
+    
+    public func addStar(file: String? = nil, fileComment: String? = nil, channel: String?  = nil, timestamp: String? = nil, success: ((_ starred: Bool) -> Void)?, failure: FailureClosure?) {
+        let request = addStarRequest(file: file, fileComment: fileComment, channel: channel, timestamp: timestamp)
+        star(request: request, success: {
             (ok) -> Void in
-                success?(ok)
-            }) {(error) -> Void in
-                failure?(error)
+            success?(ok)
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
     // One of file, file_comment, channel, or the combination of channel and timestamp must be specified.
-    public func removeStar(_ file: String? = nil, fileComment: String? = nil, channel: String? = nil, timestamp: String? = nil, success: ((_ unstarred: Bool)->Void)?, failure: FailureClosure?) {
-        star(.starsRemove, file: file, fileComment: fileComment, channel: channel, timestamp: timestamp, success: {
+    public func removeStarRequest(file: String? = nil, fileComment: String? = nil, channel: String? = nil, timestamp: String? = nil) -> URLRequest? {
+        return starRequest(endpoint: .starsRemove, file: file, fileComment: fileComment, channel: channel, timestamp: timestamp)
+    }
+    
+    public func removeStar(file: String? = nil, fileComment: String? = nil, channel: String? = nil, timestamp: String? = nil, success: ((_ unstarred: Bool) -> Void)?, failure: FailureClosure?) {
+        let request = removeStarRequest(file: file, fileComment: fileComment, channel: channel, timestamp: timestamp)
+        star(request: request, success: {
             (ok) -> Void in
-                success?(ok)
-            }) {(error) -> Void in
-                failure?(error)
+            success?(ok)
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
-    fileprivate func star(_ endpoint: Endpoint, file: String?, fileComment: String?, channel: String?, timestamp: String?, success: ((_ ok: Bool)->Void)?, failure: FailureClosure?) {
-        let parameters: [String: Any?] = ["file": file, "file_comment": fileComment, "channel": channel, "timestamp": timestamp]
-        networkInterface.request(endpoint, token: token, parameters: WebAPI.filterNilParameters(parameters), successClosure: {
+    private func starRequest(endpoint: Endpoint, file: String?, fileComment: String?, channel: String?, timestamp: String?) -> URLRequest? {
+        let parameters: [String: Any?] = ["file":file, "file_comment":fileComment, "channel":channel, "timestamp":timestamp]
+        return networkInterface.request(endpoint: endpoint, token: token, parameters: WebAPI.filterNilParameters(parameters))
+    }
+    
+    private func star(request: URLRequest?, success: ((_ ok: Bool) -> Void)?, failure: FailureClosure?) {
+        networkInterface.fire(request: request, successClosure: {
             (response) -> Void in
-                success?(true)
-            }) {(error) -> Void in
-                failure?(error)
+            success?(true)
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
 
     
     //MARK: - Team
-    public func teamInfo(_ success: ((_ info: [String: Any]?)->Void)?, failure: FailureClosure?) {
-        networkInterface.request(.teamInfo, token: token, parameters: nil, successClosure: {
+    public func teamInfoRequest() -> URLRequest? {
+        return networkInterface.request(endpoint: .teamInfo, token: token, parameters: nil)
+    }
+    
+    public func teamInfo(success: ((_ info: [String: Any]?) -> Void)?, failure: FailureClosure?) {
+        let request = teamInfoRequest()
+        networkInterface.fire(request: request, successClosure: {
             (response) -> Void in
-                success?(response["team"] as? [String: Any])
-            }) {(error) -> Void in
-                failure?(error)
+            success?(response["team"] as? [String: Any])
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
     //MARK: - Users
-    public func userPresence(_ user: String, success: ((_ presence: String?)->Void)?, failure: FailureClosure?) {
-        let parameters: [String: Any] = ["user": user]
-        networkInterface.request(.usersGetPresence, token: token, parameters: parameters, successClosure: {
+    public func userPresenceRequest(user: String) -> URLRequest? {
+        let parameters: [String: Any] = ["user":user]
+        return networkInterface.request(endpoint: .usersGetPresence, token: token, parameters: parameters)
+    }
+    
+    public func userPresence(user: String, success: ((_ presence: String?) -> Void)?, failure: FailureClosure?) {
+        let request = userPresenceRequest(user: user)
+        networkInterface.fire(request: request, successClosure: {
             (response) -> Void in
-                success?(response["presence"] as? String)
-            }){(error) -> Void in
-                failure?(error)
+            success?(response["presence"] as? String)
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
-    public func userInfo(_ id: String, success: ((_ user: User)->Void)?, failure: FailureClosure?) {
-        let parameters: [String: Any] = ["user": id]
-        networkInterface.request(.usersInfo, token: token, parameters: parameters, successClosure: {
+    public func userInfoRequest(id: String) -> URLRequest? {
+        let parameters: [String: Any] = ["user":id]
+        return networkInterface.request(endpoint: .usersInfo, token: token, parameters: parameters)
+    }
+    
+    public func userInfo(id: String, success: ((_ user: User) -> Void)?, failure: FailureClosure?) {
+        let request = userInfoRequest(id: id)
+        networkInterface.fire(request: request, successClosure: {
             (response) -> Void in
-                success?(User(user: response["user"] as? [String: Any]))
-            }) {(error) -> Void in
-                failure?(error)
+            success?(User(user: response["user"] as? [String: Any]))
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
-    public func usersList(_ includePresence: Bool = false, success: ((_ userList: [[String: Any]]?)->Void)?, failure: FailureClosure?) {
-        let parameters: [String: Any] = ["presence": includePresence]
-        networkInterface.request(.usersList, token: token, parameters: parameters, successClosure: {
+    public func usersListRequest(includePresence: Bool = false) -> URLRequest? {
+        let parameters: [String: Any] = ["presence":includePresence]
+        return networkInterface.request(endpoint: .usersList, token: token, parameters: parameters)
+    }
+    
+    public func usersList(includePresence: Bool = false, success: ((_ userList: [[String: Any]]?) -> Void)?, failure: FailureClosure?) {
+        let request = usersListRequest(includePresence: includePresence)
+        networkInterface.fire(request: request, successClosure: {
             (response) -> Void in
-                success?(response["members"] as? [[String: Any]])
-            }){(error) -> Void in
-                failure?(error)
+            success?(response["members"] as? [[String: Any]])
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
-    public func setUserActive(_ success: ((_ success: Bool)->Void)?, failure: FailureClosure?) {
-        networkInterface.request(.usersSetActive, token: token, parameters: nil, successClosure: {
+    public func setUserActiveRequest() -> URLRequest? {
+        return networkInterface.request(endpoint: .usersSetActive, token: token, parameters: nil)
+    }
+    
+    public func setUserActive(success: ((_ success: Bool) -> Void)?, failure: FailureClosure?) {
+        let request = setUserActiveRequest()
+        networkInterface.fire(request: request, successClosure: {
             (response) -> Void in
-                success?(true)
-            }) {(error) -> Void in
-                failure?(error)
+            success?(true)
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
-    public func setUserPresence(_ presence: Presence, success: ((_ success: Bool)->Void)?, failure: FailureClosure?) {
-        let parameters: [String: Any] = ["presence": presence.rawValue]
-        networkInterface.request(.usersSetPresence, token: token, parameters: parameters, successClosure: {
+    public func setUserPresenceRequest(presence: Presence) -> URLRequest? {
+        let parameters: [String: Any] = ["presence":presence.rawValue]
+        return networkInterface.request(endpoint: .usersSetPresence, token: token, parameters: parameters)
+    }
+    
+    public func setUserPresence(presence: Presence, success: ((_ success: Bool) -> Void)?, failure: FailureClosure?) {
+        let request = setUserPresenceRequest(presence: presence)
+        networkInterface.fire(request: request, successClosure: {
             (response) -> Void in
-                success?(true)
-            }) {(error) -> Void in
-                failure?(error)
+            success?(true)
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
     //MARK: - Channel Utilities
-    fileprivate func close(_ endpoint: Endpoint, channelID: String, success: ((_ closed: Bool)->Void)?, failure: FailureClosure?) {
-        let parameters: [String: Any] = ["channel": channelID]
-        networkInterface.request(endpoint, token: token, parameters: parameters, successClosure: {
-            (response) -> Void in
-                success?(true)
-            }) {(error) -> Void in
-                failure?(error)
+    private func closeRequest(endpoint: Endpoint, channelID: String) -> URLRequest? {
+        let parameters: [String: Any] = ["channel":channelID]
+        return networkInterface.request(endpoint: endpoint, token: token, parameters: parameters)
+    }
+    
+    private func close(request: URLRequest?, success: ((_ closed: Bool) -> Void)?, failure: FailureClosure?) {
+        networkInterface.fire(request: request, successClosure: { (response) -> Void in
+            success?(true)
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
-    fileprivate func history(_ endpoint: Endpoint, id: String, latest: String = "\(Date().timeIntervalSince1970)", oldest: String = "0", inclusive: Bool = false, count: Int = 100, unreads: Bool = false, success: ((_ history: History)->Void)?, failure: FailureClosure?) {
-        let parameters: [String: Any] = ["channel": id, "latest": latest, "oldest": oldest, "inclusive": inclusive, "count": count, "unreads": unreads]
-        networkInterface.request(endpoint, token: token, parameters: parameters, successClosure: {
-            (response) -> Void in
-                success?(History(history: response))
-            }) {(error) -> Void in
-                failure?(error)
+    fileprivate func historyRequest(endpoint: Endpoint, id: String, latest: String = "\(NSDate().timeIntervalSince1970)", oldest: String = "0", inclusive: Bool = false, count: Int = 100, unreads: Bool = false) -> URLRequest? {
+        let parameters: [String: Any] = ["channel": id, "latest": latest, "oldest": oldest, "inclusive":inclusive, "count":count, "unreads":unreads]
+        return networkInterface.request(endpoint: endpoint, token: token, parameters: parameters)
+    }
+    
+    fileprivate func history(request: URLRequest?, success: ((_ history: History) -> Void)?, failure: FailureClosure?) {
+        networkInterface.fire(request: request, successClosure: { response in
+            success?(History(history: response))
+        }) { error in
+            failure?(error)
         }
     }
     
-    fileprivate func info(_ endpoint: Endpoint, type: ChannelType, id: String, success: ((_ channel: Channel)->Void)?, failure: FailureClosure?) {
+    fileprivate func infoRequest(endpoint: Endpoint, id: String) -> URLRequest? {
         let parameters: [String: Any] = ["channel": id]
-        networkInterface.request(endpoint, token: token, parameters: parameters, successClosure: {
-            (response) -> Void in
-                success?(Channel(channel: response[type.rawValue] as? [String: Any]))
-            }) {(error) -> Void in
-                failure?(error)
+        return networkInterface.request(endpoint: endpoint, token: token, parameters: parameters)
+    }
+    
+    fileprivate func info(request: URLRequest?, type: ChannelType, success: ((_ channel: Channel) -> Void)?, failure: FailureClosure?) {
+        networkInterface.fire(request: request, successClosure: { (response) -> Void in
+            success?(Channel(channel: response[type.rawValue] as? [String: Any]))
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
-    fileprivate func list(_ endpoint: Endpoint, type: ChannelType, excludeArchived: Bool = false, success: ((_ channels: [[String: Any]]?)->Void)?, failure: FailureClosure?) {
+    fileprivate func listRequest(endpoint: Endpoint, excludeArchived: Bool = false) -> URLRequest? {
         let parameters: [String: Any] = ["exclude_archived": excludeArchived]
-        networkInterface.request(endpoint, token: token, parameters: parameters, successClosure: {
-            (response) -> Void in
-                success?(response[type.rawValue+"s"] as? [[String: Any]])
-            }) {(error) -> Void in
-                failure?(error)
+        return networkInterface.request(endpoint: endpoint, token: token, parameters: parameters)
+    }
+    
+    fileprivate func list(request: URLRequest?, type: ChannelType, success: ((_ channels: [[String: Any]]?) -> Void)?, failure: FailureClosure?) {
+        networkInterface.fire(request: request, successClosure: { (response) -> Void in
+            success?(response[type.rawValue+"s"] as? [[String: Any]])
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
-    fileprivate func mark(_ endpoint: Endpoint, channel: String, timestamp: String, success: ((_ ts: String)->Void)?, failure: FailureClosure?) {
+    fileprivate func markRequest(endpoint: Endpoint, channel: String, timestamp: String) -> URLRequest? {
         let parameters: [String: Any] = ["channel": channel, "ts": timestamp]
-        networkInterface.request(endpoint, token: token, parameters: parameters, successClosure: {
-            (response) -> Void in
-                success?(timestamp)
-            }) {(error) -> Void in
-                failure?(error)
+        return networkInterface.request(endpoint: endpoint, token: token, parameters: parameters)
+    }
+    
+    fileprivate func mark(request: URLRequest?, timestamp: String, success: ((_ ts: String) -> Void)?, failure: FailureClosure?) {
+        networkInterface.fire(request: request, successClosure: { (response) -> Void in
+            success?(timestamp)
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     
-    fileprivate func setInfo(_ endpoint: Endpoint, type: InfoType, channel: String, text: String, success: ((_ success: Bool)->Void)?, failure: FailureClosure?) {
+    fileprivate func setInfoRequest(endpoint: Endpoint, type: InfoType, channel: String, text: String) -> URLRequest? {
         let parameters: [String: Any] = ["channel": channel, type.rawValue: text]
-        networkInterface.request(endpoint, token: token, parameters: parameters, successClosure: {
-            (response) -> Void in
-                success?(true)
-            }) {(error) -> Void in
-                failure?(error)
+        return networkInterface.request(endpoint: endpoint, token: token, parameters: parameters)
+    }
+    
+    fileprivate func setInfo(request: URLRequest?, success: ((_ success: Bool) -> Void)?, failure: FailureClosure?) {
+        networkInterface.fire(request: request, successClosure: { (response) -> Void in
+            success?(true)
+        }) {(error) -> Void in
+            failure?(error)
         }
     }
     

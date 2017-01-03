@@ -75,7 +75,7 @@ public final class Client: WebSocketDelegate {
     
     public func connect(options: ClientOptions = ClientOptions()) {
         self.options = options
-        webAPI.rtmStart(options.simpleLatest, noUnreads: options.noUnreads, mpimAware: options.mpimAware, success: {(response) in
+        webAPI.rtmStart(simpleLatest: options.simpleLatest, noUnreads: options.noUnreads, mpimAware: options.mpimAware, success: {(response) in
             guard let socketURL = response["url"] as? String, let url = URL(string: socketURL) else {
                 return
             }

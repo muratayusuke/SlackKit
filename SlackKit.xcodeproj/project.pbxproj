@@ -9,6 +9,12 @@
 /* Begin PBXBuildFile section */
 		08CA247C91448DF893A6362B /* Pods_SlackKit_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24536431107F9007DB2EF77E /* Pods_SlackKit_iOS.framework */; };
 		16803BE5C6AC9A42A77C188E /* Pods_SlackKit_tvOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0CAF079A71861035A11FC80D /* Pods_SlackKit_tvOS.framework */; };
+		1E74048D1E1B3533005E3B5F /* Channel+Rx.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E74048C1E1B3533005E3B5F /* Channel+Rx.swift */; };
+		1E74048E1E1B3575005E3B5F /* Channel+Rx.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E74048C1E1B3533005E3B5F /* Channel+Rx.swift */; };
+		1E74048F1E1B3576005E3B5F /* Channel+Rx.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E74048C1E1B3533005E3B5F /* Channel+Rx.swift */; };
+		1E7404911E1B35C0005E3B5F /* WebAPI+Rx.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E7404901E1B35C0005E3B5F /* WebAPI+Rx.swift */; };
+		1E7404921E1B35C0005E3B5F /* WebAPI+Rx.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E7404901E1B35C0005E3B5F /* WebAPI+Rx.swift */; };
+		1E7404931E1B35C0005E3B5F /* WebAPI+Rx.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E7404901E1B35C0005E3B5F /* WebAPI+Rx.swift */; };
 		2601D61B1C7646B80012BF22 /* SlackError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2601D61A1C7646B80012BF22 /* SlackError.swift */; };
 		260EC2331C4DC61D0093B253 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 260EC2301C4DC61D0093B253 /* Extensions.swift */; };
 		260EC2341C4DC61D0093B253 /* NetworkInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 260EC2311C4DC61D0093B253 /* NetworkInterface.swift */; };
@@ -159,6 +165,8 @@
 /* Begin PBXFileReference section */
 		0A5D11EDD13FFE385823988B /* Pods-SlackKit OS X.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SlackKit OS X.release.xcconfig"; path = "Pods/Target Support Files/Pods-SlackKit OS X/Pods-SlackKit OS X.release.xcconfig"; sourceTree = "<group>"; };
 		0CAF079A71861035A11FC80D /* Pods_SlackKit_tvOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SlackKit_tvOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		1E74048C1E1B3533005E3B5F /* Channel+Rx.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Channel+Rx.swift"; path = "Sources/Channel+Rx.swift"; sourceTree = "<group>"; };
+		1E7404901E1B35C0005E3B5F /* WebAPI+Rx.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "WebAPI+Rx.swift"; path = "Sources/WebAPI+Rx.swift"; sourceTree = "<group>"; };
 		24536431107F9007DB2EF77E /* Pods_SlackKit_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SlackKit_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		2601D61A1C7646B80012BF22 /* SlackError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SlackError.swift; path = Sources/SlackError.swift; sourceTree = "<group>"; };
 		26072A341BB48B3A00CD650C /* SlackKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SlackKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -260,6 +268,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1E7404941E1B4682005E3B5F /* WebAPI */ = {
+			isa = PBXGroup;
+			children = (
+				260EC2311C4DC61D0093B253 /* NetworkInterface.swift */,
+				260EC2321C4DC61D0093B253 /* WebAPI.swift */,
+				1E7404901E1B35C0005E3B5F /* WebAPI+Rx.swift */,
+			);
+			name = WebAPI;
+			sourceTree = "<group>";
+		};
 		26072A2A1BB48B3A00CD650C = {
 			isa = PBXGroup;
 			children = (
@@ -290,14 +308,13 @@
 				26BBA18B1C398E3C00BF7225 /* EventDelegate.swift */,
 				260EC2301C4DC61D0093B253 /* Extensions.swift */,
 				269B47611D3544240042D137 /* IncomingWebhook.swift */,
-				260EC2311C4DC61D0093B253 /* NetworkInterface.swift */,
 				26B30B8F1D298E08004D4AB5 /* MessageActionServer.swift */,
 				269B47651D39AAA80042D137 /* MessageActionResponder.swift */,
 				26B30BC21D2DFF0D004D4AB5 /* OAuthServer.swift */,
 				26B30B911D298E12004D4AB5 /* Server.swift */,
 				269B475D1D3538E90042D137 /* SlackKit.swift */,
-				260EC2321C4DC61D0093B253 /* WebAPI.swift */,
 				26EC15001D260B1000FD3A53 /* WebhookServer.swift */,
+				1E7404941E1B4682005E3B5F /* WebAPI */,
 				26EC14B31D1B974500FD3A53 /* Models */,
 				268E46161CE8F7A2009F19CC /* Supporting Files */,
 			);
@@ -344,6 +361,7 @@
 				26EC14C01D1EF16500FD3A53 /* AttachmentField.swift */,
 				26BBA1871C398E3C00BF7225 /* Bot.swift */,
 				26BBA1881C398E3C00BF7225 /* Channel.swift */,
+				1E74048C1E1B3533005E3B5F /* Channel+Rx.swift */,
 				269B47CD1D3C22FC0042D137 /* ClientOptions.swift */,
 				26EC14C41D1EF17400FD3A53 /* Comment.swift */,
 				26EC14C51D1EF17400FD3A53 /* CustomProfile.swift */,
@@ -660,6 +678,7 @@
 				26EC15011D260B1000FD3A53 /* WebhookServer.swift in Sources */,
 				26EC14CC1D1EF17400FD3A53 /* CustomProfile.swift in Sources */,
 				26BBA1961C398E3C00BF7225 /* Client.swift in Sources */,
+				1E74048D1E1B3533005E3B5F /* Channel+Rx.swift in Sources */,
 				26B30B881D297A98004D4AB5 /* MessageActionRequest.swift in Sources */,
 				269B475E1D3538E90042D137 /* SlackKit.swift in Sources */,
 				26B30BC71D2DFF7D004D4AB5 /* AuthorizeRequest.swift in Sources */,
@@ -687,6 +706,7 @@
 				C1A85FFA1CE3BCEF00756C40 /* Client+EventHandling.swift in Sources */,
 				26B30B991D298F25004D4AB5 /* WebhookRequest.swift in Sources */,
 				26EC14C91D1EF17400FD3A53 /* Comment.swift in Sources */,
+				1E7404911E1B35C0005E3B5F /* WebAPI+Rx.swift in Sources */,
 				26EC14C11D1EF16500FD3A53 /* AttachmentField.swift in Sources */,
 				260EC2341C4DC61D0093B253 /* NetworkInterface.swift in Sources */,
 				26BBA1981C398E3C00BF7225 /* EventDelegate.swift in Sources */,
@@ -712,6 +732,7 @@
 				2639939B1CE90EE0004A6E93 /* Client.swift in Sources */,
 				2639939C1CE90EE0004A6E93 /* Event.swift in Sources */,
 				26B30BC81D2DFF7D004D4AB5 /* AuthorizeRequest.swift in Sources */,
+				1E74048E1E1B3575005E3B5F /* Channel+Rx.swift in Sources */,
 				2678B5951D3151B900CE521A /* AuthorizeResponse.swift in Sources */,
 				26EC14D31D1EF17400FD3A53 /* DoNotDisturbStatus.swift in Sources */,
 				2639939D1CE90EE0004A6E93 /* Bot.swift in Sources */,
@@ -739,6 +760,7 @@
 				269B47631D3544240042D137 /* IncomingWebhook.swift in Sources */,
 				269B47671D39AAA80042D137 /* MessageActionResponder.swift in Sources */,
 				26EC14CA1D1EF17400FD3A53 /* Comment.swift in Sources */,
+				1E7404921E1B35C0005E3B5F /* WebAPI+Rx.swift in Sources */,
 				26EC14C21D1EF16500FD3A53 /* AttachmentField.swift in Sources */,
 				263993A81CE90EE0004A6E93 /* NetworkInterface.swift in Sources */,
 				263993A91CE90EE0004A6E93 /* EventDelegate.swift in Sources */,
@@ -764,6 +786,7 @@
 				269B47CA1D3AE2670042D137 /* WebhookServer.swift in Sources */,
 				26EC14D41D1EF17400FD3A53 /* DoNotDisturbStatus.swift in Sources */,
 				263993BC1CE90EED004A6E93 /* Bot.swift in Sources */,
+				1E74048F1E1B3576005E3B5F /* Channel+Rx.swift in Sources */,
 				26EC14E81D1EF18F00FD3A53 /* TeamIcon.swift in Sources */,
 				263993BD1CE90EED004A6E93 /* Client+EventDispatching.swift in Sources */,
 				263993BE1CE90EED004A6E93 /* File.swift in Sources */,
@@ -791,6 +814,7 @@
 				26B30BC91D2DFF7D004D4AB5 /* AuthorizeRequest.swift in Sources */,
 				269B47641D3544240042D137 /* IncomingWebhook.swift in Sources */,
 				26EC14CB1D1EF17400FD3A53 /* Comment.swift in Sources */,
+				1E7404931E1B35C0005E3B5F /* WebAPI+Rx.swift in Sources */,
 				26EC14C31D1EF16500FD3A53 /* AttachmentField.swift in Sources */,
 				263993C71CE90EED004A6E93 /* NetworkInterface.swift in Sources */,
 				263993C81CE90EED004A6E93 /* EventDelegate.swift in Sources */,

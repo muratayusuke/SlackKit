@@ -49,7 +49,7 @@ public extension Client {
         if let channel = channel {
             success(channel.0)
         } else {
-            webAPI.openIM(id, success: success, failure: failure)
+            webAPI.openIM(userID: id, success: success, failure: failure)
         }
     }
 

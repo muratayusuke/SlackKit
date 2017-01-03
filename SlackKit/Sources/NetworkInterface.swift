@@ -27,7 +27,7 @@ internal struct NetworkInterface {
     
     private let apiUrl = "https://slack.com/api/"
     
-    internal func request(_ endpoint: Endpoint, token: String? = nil, parameters: [String: Any]?, successClosure: @escaping ([String: Any])->Void, errorClosure: @escaping (SlackError)->Void) {
+    internal func request(endpoint: Endpoint, token: String? = nil, parameters: [String: Any]?) -> URLRequest? {
         var requestString = "\(apiUrl)\(endpoint.rawValue)?"
         if let token = token {
             requestString += "token=\(token)"
@@ -36,13 +36,17 @@ internal struct NetworkInterface {
             requestString += params.requestStringFromParameters
         }
         guard let url =  URL(string: requestString) else {
+            return nil
+        }
+        return URLRequest(url: url)
+    }
+    
+    internal func fire(request: URLRequest?, successClosure: @escaping ([String: Any]) -> Void, errorClosure: @escaping (SlackError) -> Void) {
+        guard let request = request else {
             errorClosure(SlackError.clientNetworkError)
             return
         }
-        let request = URLRequest(url:url)
-    
-        URLSession.shared.dataTask(with: request) {
-            (data, response, internalError) -> Void in
+        URLSession.shared.dataTask(with: request) { (data, response, internalError) -> Void in
             do {
                 successClosure(try self.handleResponse(data, response: response, internalError: internalError))
             } catch let error {

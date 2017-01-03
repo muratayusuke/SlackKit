@@ -66,7 +66,7 @@ public struct OAuthServer {
             guard let response = AuthorizeResponse(queryParameters: request.queryParams), response.state == self.state else {
                 return .badRequest(.text("Bad request."))
             }
-            WebAPI.oauthAccess(self.clientID, clientSecret: self.clientSecret, code: response.code, redirectURI: self.redirectURI, success: {(response) in
+            WebAPI.oauthAccess(clientID: self.clientID, clientSecret: self.clientSecret, code: response.code, redirectURI: self.redirectURI, success: {(response) in
                 self.delegate?.userAuthed(OAuthResponse(response: response))
             }, failure: {(error) in
                 print("Authorization failed")
