@@ -27,8 +27,9 @@ public struct History {
     
     internal(set) public var latest: Date?
     internal(set) public var messages = [Message]()
+    internal(set) public var unreadCountDisplay: Int?
     public let hasMore: Bool?
-    
+
     internal init(history: [String: Any]?) {
         if let latestStr = history?["latest"] as? String, let latestDouble = Double(latestStr) {
             latest = Date(timeIntervalSince1970: TimeInterval(latestDouble))
@@ -38,6 +39,7 @@ public struct History {
                 messages.append(Message(dictionary: message))
             }
         }
+        unreadCountDisplay = history?["unread_count_display"] as? Int
         hasMore = history?["has_more"] as? Bool
     }
 }
